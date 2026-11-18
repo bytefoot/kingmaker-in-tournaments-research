@@ -1,0 +1,33 @@
+# experiment: e0
+# date_utc: 2026-11-18T12:48:05+00:00
+# git_commit: nogit
+# seed: 20261118
+# params: {"dp_mc_runs": 10000, "format_runs": 10000, "hodge_reps": 100, "mode": "quick"}
+# runtime_s: 2.27
+check,value,threshold,passed,detail
+bracket_count_n4,3.0,== 3; all 3 classes of size 2^3,True,
+bracket_count_n8,315.0,== 315; all 315 classes of size 2^7,True,
+bracket_count_formula_n16,638512875.0,== 638512875,True,
+hodge_orthogonality,1.0189259869064718e-16,"max |<T,C>_F| / ||L||^2 < 1e-12",True,"n in 4,8,16; 100 each"
+hodge_cyclic_rowsums,2.4868995751603507e-14,max |row sum of C| < 1e-12,True,
+make_P_kappa_target,4.440892098500626e-16,max |kappa(L) - target| < 1e-9,True,"297 draws: n in 4,8,16 x variants ('skew', 'bc1', 'bc2') x 11 kappas x 3 scales"
+dp_vs_mc_n8,2.472857662348414,max |DP - MC| / s.e. <= 4,True,"5 matrices x 8 players, 10000 runs each"
+dp_vs_exact_rational_n4,1.1102230246251565e-16,max abs diff < 1e-14,True,20 matrices x 3 brackets
+top_wins_Round robin_minlogit0.5,0.9945,info (convergence),True,
+top_wins_Round robin_minlogit2,1.0,info (convergence),True,
+top_wins_Round robin_minlogit8,1.0,info (convergence),True,
+top_wins_Round robin_minlogit32,1.0,>= 0.999,True,
+top_wins_KO-random_minlogit32,1.0,>= 0.999,True,
+top_wins_KO-elo_minlogit32,1.0,>= 0.999,True,
+top_wins_Swiss_minlogit32,1.0,>= 0.999,True,
+top_wins_Groups+KO_minlogit32,1.0,>= 0.999,True,
+uniform_scale0_KO-random,0.0,exact: max |p - 1/8| < 1e-12,True,
+uniform_scale0_KO-elo,0.0,exact: max |p - 1/8| < 1e-12,True,
+uniform_scale0_Swiss,0.8977146455805695,chi-square p > 0.001,True,10000 runs; max |p-1/8| = 0.0045
+uniform_scale0_Groups+KO,0.9892555793440153,chi-square p > 0.001,True,10000 runs; max |p-1/8| = 0.0025
+uniform_scale0_Round robin,0.09337973779097701,chi-square p > 0.001,True,10000 runs; max |p-1/8| = 0.0091
+ko_random_exact_vs_mc,1.6318499746902606,max |exact - MC| / s.e. <= 4,True,10000 runs
+format_match_counts,69.0,"7, 7, 12, 15, 28",True,"{'KO-random': 7, 'KO-elo': 7, 'Swiss': 12, 'Groups+KO': 15, 'Round robin': 28}"
+nash_rps,1.1102230246251565e-16,"max |x - 1/3| < 1e-8, unique",True,"x = [0.333333, 0.333333, 0.333333]"
+nash_bt_top_player,0.0,"max |x - e_top| < 1e-8, unique",True,
+nash_maxent_duplicate_scissors,2.7755575615628914e-16,"non-unique, maxent = (1/3,1/3,1/6,1/6) within 1e-5",True,"x = [0.333333, 0.333333, 0.166667, 0.166667]"
