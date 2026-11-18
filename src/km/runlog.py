@@ -14,10 +14,10 @@ FIG_DIR = ROOT / "outputs" / "fig"
 
 
 def git_commit() -> str:
-    """Short commit hash, with '+dirty' if the tracked tree has uncommitted changes; 'nogit' outside a repo."""
+    """Short commit hash, with '+dirty' if the tracked tree (outside outputs/) has uncommitted changes; 'nogit' outside a repo."""
     try:
         h = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip()
-        dirty = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+        dirty = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no", "--", ".", ":!outputs"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
         return h + ("+dirty" if dirty else "")
     except (subprocess.CalledProcessError, FileNotFoundError):
         return "nogit"
