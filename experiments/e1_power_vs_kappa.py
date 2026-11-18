@@ -22,6 +22,8 @@ import pandas as pd
 from km.bracket import enumerate_brackets, exhaustive_metrics, local_search, objective
 from km.models import SCALE_TARGETS, calibrate_scale, logit, make_P
 from km.plotting import COLORS, FULL, save, use_style
+
+MARKERS = {"close": "o", "medium": "s", "decisive": "^"}
 from km.runlog import write_csv
 
 KAPPAS = np.round(np.linspace(0, 1, 11), 2)
@@ -118,17 +120,15 @@ def plot(summary: pd.DataFrame, variant: str) -> None:
         g = d[d.scale == scale]
         for ax, col in zip(axes, ("K", "Pi")):
             ax.fill_between(g.kappa, g[f"{col}_lo"], g[f"{col}_hi"], color=COLORS[scale], alpha=0.2, lw=0)
-            ax.plot(g.kappa, g[col], color=COLORS[scale], marker="o", label=f"{scale} (mean |P−½| = {SCALE_TARGETS[scale]})")
+            ax.plot(g.kappa, g[col], color=COLORS[scale], marker=MARKERS[scale], label=f"{scale} (mean |P−½| = {SCALE_TARGETS[scale]})")
     axes[0].set_ylabel("kingmakeable players K (of 8)")
-    axes[1].set_ylabel("organiser power Π = mean rigging range")
+    axes[1].set_ylabel("organiser power Π")
     for ax in axes:
         ax.set_xlabel("cyclic share κ")
         ax.set_xlim(0, 1)
     axes[0].set_ylim(bottom=0)
     axes[1].set_ylim(bottom=0)
     axes[0].legend(loc="upper left", title="match decisiveness", title_fontsize=8)
-    cyc = {"skew": "random skew-symmetric cycles", "bc2": "Blade-Chest d=2 cycles"}[variant]
-    fig.suptitle(f"n = 8, all 315 brackets; {cyc}; mean and 95% bootstrap CI", fontsize=9)
     fig.tight_layout()
     save(fig, f"F2_power_vs_kappa_{variant}")
 
@@ -139,7 +139,13 @@ def main() -> None:
     mode.add_argument("--quick", action="store_true")
     mode.add_argument("--full", action="store_true")
     ap.add_argument("--seed", type=int, default=20261119)
+    ap.add_argument("--plot-only", action="store_true", help="redraw F2 from outputs/csv/e1_n8_summary.csv")
     args = ap.parse_args()
+    if args.plot_only:
+        summary = pd.read_csv("outputs/csv/e1_n8_summary.csv", comment="#")
+        for v in ("skew", "bc2"):
+            plot(summary, v)
+        return
     full = not args.quick
     p = {"mode": "full" if full else "quick", "n8_reps": 200 if full else 10, "ls_val_matrices": 33 if full else 3,
          "ls_restart_grid": [1, 5, 10, 50] if full else [1, 10], "n16_kappas": [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
