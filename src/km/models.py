@@ -116,3 +116,19 @@ def fit_bt(P: np.ndarray) -> np.ndarray:
     This is exactly the Hodge ranking potential ``s``; g is centred (sums to 0).
     """
     return logit(P).mean(axis=1)
+
+
+SCALE_TARGETS = {"close": 0.08, "medium": 0.18, "decisive": 0.32}
+
+
+def calibrate_scale(n: int, target: float, rng: np.random.Generator, n_draws: int = 4000) -> float:
+    """Scale at which, at κ = 0, the mean off-diagonal |P - 0.5| over random T̂ equals ``target``.
+
+    Uses one fixed set of T̂ draws (common random numbers), so the mean is a smooth increasing function of scale and
+    a bracketing root-finder applies.
+    """
+    from scipy.optimize import brentq
+
+    off = ~np.eye(n, dtype=bool)
+    T = np.stack([random_ranking_unit(n, rng)[off] for _ in range(n_draws)])
+    return float(brentq(lambda s: np.mean(np.abs(sigmoid(s * T) - 0.5)) - target, 1e-6, 1e4, xtol=1e-10))

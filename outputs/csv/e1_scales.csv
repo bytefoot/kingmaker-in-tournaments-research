@@ -1,0 +1,13 @@
+# experiment: e1_scales
+# date_utc: 2026-11-18T13:15:35+00:00
+# git_commit: 9bacc52+dirty
+# seed: 20261119
+# params: {"cycle_variants_n8": ["skew", "bc2"], "ls_restart_grid": [1, 10], "ls_val_matrices": 3, "mode": "quick", "n16_kappas": [0.0, 0.2, 0.4, 0.6, 0.8, 1.0], "n16_reps": 1, "n16_restarts": 10, "n16_scale": "medium", "n16_variant": "skew", "n8_reps": 10, "scale_targets": {"close": 0.08, "decisive": 0.32, "medium": 0.18}, "scales": {"8": {"close": 2.96, "decisive": 18.222, "medium": 7.334}, "16": {"close": 6.262, "decisive": 39.744, "medium": 15.668}}, "weakest": "lowest Hodge potential s"}
+# runtime_s: 0.76
+n,scale_name,target_mean_abs_P,scale
+8,close,0.08,2.96
+8,medium,0.18,7.334
+8,decisive,0.32,18.222
+16,close,0.08,6.262
+16,medium,0.18,15.668
+16,decisive,0.32,39.744

@@ -130,3 +130,43 @@ def exhaustive_metrics(P: np.ndarray, brackets: np.ndarray | None = None, tie_to
         "Pi": float(np.mean(Wmax - Wmin)),
         "argmax_bracket": brackets[np.argmax(W, axis=0)],
     }
+
+
+def objective(kind: str, i: int):
+    """Objective on W (shape (B, n)) for player i, to be maximised: 'max' -> W_i, 'min' -> -W_i,
+    'margin' -> W_i - max_{j != i} W_j (positive iff i is the unique favourite)."""
+    if kind == "max":
+        return lambda W: W[:, i]
+    if kind == "min":
+        return lambda W: -W[:, i]
+    if kind == "margin":
+        return lambda W: W[:, i] - np.max(np.delete(W, i, axis=1), axis=1)
+    raise ValueError(kind)
+
+
+def local_search(P: np.ndarray, f, rng: np.random.Generator, restarts: int = 50) -> tuple[float, np.ndarray]:
+    """Maximise f(W(σ)) over brackets by first-improvement hill-climbing on leaf swaps, with random restarts.
+
+    Each restart starts from a uniformly random seeding; at every step all n(n-1)/2 swaps of two leaves are scored
+    at once with the DP and the first improving one in a random order is taken; stops at a local optimum.
+    Returns (best value, best seeding).  For n >= 16 this is a lower bound on the true maximum.
+    """
+    n = len(P)
+    a, b = np.triu_indices(n, k=1)
+    best_val, best_s = -np.inf, None
+    for _ in range(restarts):
+        s = rng.permutation(n)
+        val = f(win_probs(P, s[None]))[0]
+        while True:
+            cand = np.tile(s, (len(a), 1))
+            cand[np.arange(len(a)), a], cand[np.arange(len(a)), b] = s[b], s[a]
+            vals = f(win_probs(P, cand))
+            order = rng.permutation(len(a))
+            improving = vals[order] > val + 1e-15
+            if not improving.any():
+                break
+            k = order[np.argmax(improving)]
+            s, val = cand[k], vals[k]
+        if val > best_val:
+            best_val, best_s = val, s
+    return float(best_val), best_s

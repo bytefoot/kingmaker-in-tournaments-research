@@ -1,0 +1,13 @@
+# experiment: e1_n16
+# date_utc: 2026-11-18T13:15:51+00:00
+# git_commit: 9bacc52+dirty
+# seed: 20261119
+# params: {"cycle_variants_n8": ["skew", "bc2"], "ls_restart_grid": [1, 10], "ls_val_matrices": 3, "mode": "quick", "n16_kappas": [0.0, 0.2, 0.4, 0.6, 0.8, 1.0], "n16_reps": 1, "n16_restarts": 10, "n16_scale": "medium", "n16_variant": "skew", "n8_reps": 10, "scale_targets": {"close": 0.08, "decisive": 0.32, "medium": 0.18}, "scales": {"8": {"close": 2.96, "decisive": 18.222, "medium": 7.334}, "16": {"close": 6.262, "decisive": 39.744, "medium": 15.668}}, "weakest": "lowest Hodge potential s"}
+# runtime_s: 14.59
+kappa,rep,K_lb,Pi_lb,weakest_kingmakeable_found,worst_rank_kingmakeable
+0.0,0,7,0.1110396548615249,False,7
+0.2,0,5,0.11764633040369332,False,5
+0.4,0,6,0.13166075851853892,False,6
+0.6,0,11,0.17144305736436097,False,11
+0.8,0,13,0.17924119723881032,False,13
+1.0,0,16,0.2015668404030711,True,16
