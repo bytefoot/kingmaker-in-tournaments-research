@@ -1,9 +1,9 @@
 # experiment: e0
-# date_utc: 2026-11-18T12:48:20+00:00
-# git_commit: ff591c2+dirty
+# date_utc: 2026-11-18T12:48:30+00:00
+# git_commit: 4f4e13c
 # seed: 20261118
 # params: {"dp_mc_runs": 100000, "format_runs": 100000, "hodge_reps": 1000, "mode": "full"}
-# runtime_s: 2.39
+# runtime_s: 2.33
 check,value,threshold,passed,detail
 bracket_count_n4,3.0,== 3; all 3 classes of size 2^3,True,
 bracket_count_n8,315.0,== 315; all 315 classes of size 2^7,True,
