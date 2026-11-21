@@ -27,7 +27,7 @@ from km.plotting import COLORS, FULL, save, use_style
 from km.runlog import ROOT, write_csv
 
 GAME = {"sigma_g": 0.5, "s": 0.8, "sigma_v": 0.3}
-LAMBDAS = (0.01, 0.1, 1.0, 10.0, 100.0, 1000.0)
+LAMBDAS = (0.01, 0.1, 1.0, 3.0, 10.0, 30.0, 100.0)  # ridge on blade/chest; see km.models.fit_bc for why not the paper's
 TENNIS_DIR = ROOT / "data" / "raw" / "tennis_atp"
 
 
@@ -163,7 +163,7 @@ def main() -> None:
     args = ap.parse_args()
     full = not args.quick
     p = {"mode": "full" if full else "quick", "game": GAME, "lambdas": LAMBDAS, "N_per_pair": [10, 50],
-         "n8_instances": 20 if full else 2, "n16_instances": 3 if full else 1, "restarts_n16": 10, "bc_restarts": 3}
+         "n8_instances": 20 if full else 2, "n16_instances": 3 if full else 1, "restarts_n16": 10, "bc_restarts": 3, "bc_regulariser": "ridge on blade and chest"}
     rng = np.random.default_rng(args.seed)
     t0 = time.time()
     s8, pp8 = run_archetype(8, p["n8_instances"], p["N_per_pair"], 0, rng)

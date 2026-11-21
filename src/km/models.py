@@ -147,7 +147,7 @@ def _bc_unpack(theta: np.ndarray, n: int, d: int):
     return theta[:n], theta[n:n + n * d].reshape(n, d), theta[n + n * d:].reshape(n, d)
 
 
-def _fit(wins: np.ndarray, d: int, lam: float, theta0: np.ndarray, ridge: float) -> np.ndarray:
+def _fit(wins: np.ndarray, d: int, lam: float, theta0: np.ndarray, ridge: float, reg: str = "paper") -> np.ndarray:
     from scipy.optimize import minimize
 
     n = len(wins)
@@ -157,11 +157,15 @@ def _fit(wins: np.ndarray, d: int, lam: float, theta0: np.ndarray, ridge: float)
         L = bc_logits(g, B, C)
         G = -wins * sigmoid(-L)  # dNLL/dL[i, j] for observed i-beats-j
         nll = -np.sum(wins * np.log(np.clip(sigmoid(L), 1e-300, 1)))
-        D = B - C
-        loss = nll + lam * np.sum(D**2) + ridge * np.sum(theta**2)
         gg = G.sum(1) - G.sum(0)
         A = G - G.T
-        gB, gC = A @ C + 2 * lam * D, -A @ B - 2 * lam * D
+        gB, gC = A @ C, -A @ B
+        if reg == "paper":  # λ Σ ||b_i - c_i||²
+            D = B - C
+            pen, gB, gC = lam * np.sum(D**2), gB + 2 * lam * D, gC - 2 * lam * D
+        else:  # "ridge": λ Σ (||b_i||² + ||c_i||²)
+            pen, gB, gC = lam * (np.sum(B**2) + np.sum(C**2)), gB + 2 * lam * B, gC + 2 * lam * C
+        loss = nll + pen + ridge * np.sum(theta**2)
         return loss, np.concatenate([gg, gB.ravel(), gC.ravel()]) + 2 * ridge * theta
 
     res = minimize(f, theta0, jac=True, method="L-BFGS-B", options={"maxiter": 5000, "gtol": 1e-8})
@@ -176,16 +180,22 @@ def fit_bt_mle(wins: np.ndarray, ridge: float = 1e-4) -> np.ndarray:
 
 
 def fit_bc(wins: np.ndarray, d: int, lam: float, rng: np.random.Generator, restarts: int = 3,
-           ridge: float = 1e-4) -> np.ndarray:
-    """Blade-Chest (inner, with bias) MLE with the paper's regulariser λ Σ ||blade_i - chest_i||² (Chen & Joachims
-    2016, §3.4) plus a tiny ridge; best of ``restarts`` random initialisations.  Returns P."""
+           ridge: float = 1e-4, reg: str = "ridge") -> np.ndarray:
+    """Blade-Chest (inner, with bias) MLE, best of ``restarts`` random initialisations, plus a tiny ridge.  Returns P.
+
+    ``reg="paper"``: λ Σ ||blade_i - chest_i||² (Chen & Joachims 2016, §3.4).  This does not bound the scale: blade and
+    chest can grow long and nearly parallel, keeping the cyclic term at almost no penalty (we observed |blade| 2 -> 36
+    with κ unchanged as λ went 0.01 -> 1000), so λ barely controls complexity.
+    ``reg="ridge"`` (default): λ Σ (||blade_i||² + ||chest_i||²), which shrinks the cyclic term smoothly to 0 (BT) as λ grows.
+    """
     n = len(wins)
     best, best_loss = None, np.inf
     for _ in range(restarts):
-        theta = _fit(wins, d, lam, 0.5 * rng.standard_normal(n + 2 * n * d), ridge)
+        theta = _fit(wins, d, lam, 0.5 * rng.standard_normal(n + 2 * n * d), ridge, reg)
         g, B, C = _bc_unpack(theta, n, d)
         P = sigmoid(bc_logits(g, B, C))
-        loss = log_loss(P, wins) * wins.sum() + lam * np.sum((B - C) ** 2)
+        pen = np.sum((B - C) ** 2) if reg == "paper" else np.sum(B**2) + np.sum(C**2)
+        loss = log_loss(P, wins) * wins.sum() + lam * pen
         if loss < best_loss:
             best, best_loss = P, loss
     return best
