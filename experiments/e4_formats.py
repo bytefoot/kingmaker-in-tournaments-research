@@ -41,12 +41,12 @@ def plot(summary: pd.DataFrame, n_matches: dict) -> None:
         for f in FORMATS:
             g = summary[summary.format == f]
             ax.fill_between(g.kappa, g[f"{col}_lo"], g[f"{col}_hi"], color=COLORS[f], alpha=0.15, lw=0)
-            ax.plot(g.kappa, g[col], color=COLORS[f], marker=MARKERS[f], label=f"{f} ({n_matches[f]})")
+            note = "; same champion as KO-random" if f == "Swiss" else ""
+            ax.plot(g.kappa, g[col], color=COLORS[f], marker=MARKERS[f], label=f"{f} ({n_matches[f]}{note})")
         ax.set_xlabel("cyclic share κ")
         ax.set_ylabel(label)
         ax.set_xlim(0, 1)
-        ax.set_ylim(0, 1 if col == "p_copeland" else None)
-    axes[1].set_ylim(bottom=0)
+        ax.set_ylim(0, 0.6 if col == "p_copeland" else 0.5)
     axes[0].legend(loc="lower left", title="format (matches)", title_fontsize=8, fontsize=7)
     fig.tight_layout()
     save(fig, "F5_formats_vs_kappa")

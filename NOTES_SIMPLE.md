@@ -178,3 +178,47 @@ not to work in our setting (the fitted vectors just grew longer instead of simpl
 
 💬 **Your thoughts:**
 >
+
+---
+
+## Step 5: E3, does "seed by ranking" still work when there are cycles? (done ✅)
+
+**Set-up:** organisers usually seed with an Elo-style ranking: best vs worst in round 1, top two in opposite halves.
+That ranking assumes a ladder. We checked how wrong its predictions get when the world has cycles.
+
+**Found:** with no cycles the predictions are exact. With cycles they drift: some player's title chance is off by about
+5 points at κ = 0.3 and 7 points at κ = 0.6 (up to 10 in the strategy game). The "protected" top seed tends to do *worse*
+than promised. Their seeded bracket goes from a good draw for them (87th percentile of all brackets) to a mediocre one
+(65th). Who gains or loses depends on matchups, e.g. a seed whose path avoids its counter-style gains 7 points.
+
+Picture: `outputs/fig/F4_elo_pred_vs_actual.pdf` (dots above the diagonal = luckier than predicted).
+
+💬 **Your thoughts:**
+>
+
+---
+
+## Step 6: E4, which format picks a sensible winner when there are cycles? (done ✅)
+
+**Set-up:** five formats for 8 players: knockout with a random draw (7 matches), knockout seeded by ranking (7), Swiss
+(12), groups then knockout (15), everyone-plays-everyone round robin (28). For each we measured how often the champion is a
+"deserving" winner: (a) beats the most opponents (Copeland), (b) best average win rate (Borda), (c) favoured by the
+game-theory "Nash" mix.
+
+**Found:**
+1. **More matches help only when there are few cycles.** In a ladder world round robin picks a deserving winner about 7
+   points more often than a random knockout (45% vs 38%). The gap shrinks as cycles grow and is **zero** in pure
+   rock-paper-scissors: 28 matches buy nothing over 7. (On one measure round robin is even a hair worse there, by 0.2
+   points: real, but too small to matter.)
+2. **Surprise: our 8-player 3-round Swiss is secretly a random knockout.** The person who goes 3–0 had to win a random
+   round-1 match, then beat another 1–0 player, then beat the other 2–0 player. That is exactly a random bracket. The other
+   5 matches only decide the lower places. So in our simulations its winner statistics are identical to the knockout's.
+3. **Seeding by ranking helps a bit with no cycles (+5 points) and stops helping in pure cycles,** because the ranking itself
+   stops meaning much.
+
+Picture: `outputs/fig/F5_formats_vs_kappa.pdf`.
+
+**Question for you:** is the Swiss result worth a short paragraph in the report? It's simple to explain and a bit surprising.
+
+💬 **Your thoughts:**
+>

@@ -21,13 +21,26 @@
   Jaccard 0.80. BC also has lower held-out log-loss in 20/20 instances (by 0.079 ± 0.007 nats/match).
   (`outputs/fig/F3_rigging_bt_vs_bc.pdf`, `outputs/csv/e2_archetype.csv`)
 
+- **Round robin's edge shrinks to zero as cycles grow; it does not meaningfully reverse.** n = 8, medium scale, 200 matrices per κ:
+  RR minus random knockout in P(winner is a Copeland winner) is +0.067 [0.063, 0.070] at κ = 0, +0.056 at κ = 0.6,
+  +0.003 [0.002, 0.005] at κ = 1. Expected Nash mass of the winner falls for every format (RR 0.449 → 0.126) and all formats
+  converge at κ = 1 (≈ 1/8). On Borda, RR is very slightly *worse* at κ = 1 (−0.002 [−0.004, −0.001]): detectable, negligible.
+  So with strong cycles, 28 matches buy nothing over 7. (`outputs/fig/F5_formats_vs_kappa.pdf`, `outputs/csv/e4_summary.csv`)
+- **Elo seeding mispredicts more as κ grows.** Largest per-player gap between BT-predicted and actual title chance in the
+  Elo-seeded bracket: 0 at κ = 0, 0.046 ± 0.001 at κ = 0.3, 0.069 ± 0.002 at κ = 0.6, 0.078 ± 0.008 in the archetype game.
+  (`outputs/fig/F4_elo_pred_vs_actual.pdf`, `outputs/csv/e3_misspec.csv`)
+
 **Surprises:**
 1. **P6 (new conjecture): under BT the kingmakeable set is always a top segment {1, …, K} of the strength order.** True in all
    1,200 BT matrices at n = 8. It fails with cycles (top-segment share 0.987 at κ = 0.1, 0.878 at κ = 0.6). See `theory/P6.md`.
 2. **P3 has a clean proof structure:** it reduces exactly to a "Ladder Lemma" whose certificate factors as (x − y) times a
    positive polynomial with (h+2)^h monomials (Cayley's tree numbers), verified for depths ≤ 4. The weakest-never-favourite
    corollary has a short hand proof for every n. Under BT, K ≤ n − 1 and this is attained.
-3. BT is more riggable than our hypothesis said: K = 1 in only 642/1,200 BT matrices, and one matrix had K = 6 of 8.
+3. **An 8-player, 3-round Swiss with "most wins" crowns exactly the same distribution as a random knockout.** Round 2 pairs the four
+   1–0 players at random, and round 3 forces the two 2–0 players to meet, so the champion's path *is* a random bracket. The 5
+   extra matches only sort out the lower places. Confirmed: E4 metrics agree to 3 decimals, and 200k-run Swiss matches exact
+   KO-random within 3 s.e. on 40/40 entries.
+4. BT is more riggable than our hypothesis said: K = 1 in only 642/1,200 BT matrices, and one matrix had K = 6 of 8.
    The "small kingmakeable set under BT" claim should be "a top segment, typically 1–3 players".
 
 ## 2. Theory items
@@ -177,12 +190,65 @@ URLs, `master` and `main`). Per §5 we did not substitute another source. The lo
 `atp_matches_2015.csv` … `atp_matches_2019.csv` in `data/raw/tennis_atp/` and re-running the script adds tennis and makes F3's
 right panel tennis. Without it, F3's right panel shows estimated vs true Π across archetype instances.
 
+### E3 — Elo seeding in a cyclic world (done)
+
+- Command: `python experiments/e3_misspec.py --full`; seed 20261125; git commit 3e95c67; runtime 0.6 s.
+- make_P (n = 8, medium, skew) at κ ∈ {0, 0.3, 0.6} × 200 matrices: BT fit = least-squares (exact at κ = 0). Archetype game
+  (20 instances, 50 matches/pair): BT MLE vs BC fit (ridge λ = 3, the value E2 most often selected) from the same data, and also
+  vs the true P.
+- Per matrix (mean ± s.e.):
+
+| world | max \|actual − predicted\| W | top seed's gain | Elo bracket's percentile for top seed |
+|---|---|---|---|
+| κ = 0 (control) | 0.000 | 0.000 | 0.871 ± 0.003 |
+| κ = 0.3 | 0.046 ± 0.001 | −0.009 ± 0.002 | 0.760 ± 0.013 |
+| κ = 0.6 | 0.069 ± 0.002 | −0.017 ± 0.004 | 0.650 ± 0.019 |
+| archetype, BC vs BT fit | 0.078 ± 0.008 | +0.020 ± 0.014 | 0.707 ± 0.067 |
+| archetype, true P vs BT fit | 0.097 ± 0.009 | +0.022 ± 0.018 | 0.684 ± 0.070 |
+
+Interpretation: under cycles the Elo bracket's promise ("seed 1 is protected") weakens. In the synthetic worlds the top seed's
+actual title chance is lower than predicted, and the bracket is a progressively less favourable draw for them (87th → 65th
+percentile of all 315). Gains and losses are matchup-driven: e.g. in the archetype example the 2nd seed gains +0.07 because
+its semifinal path avoids its counter-archetype. Even at κ = 0 standard seeding is not the best bracket for the top seed
+(87th percentile), consistent with P2.
+
+### E4 — formats (done)
+
+- Command: `python experiments/e4_formats.py --full`; seed 20261126; git commit f46e38b; runtime 97 s. n = 8, medium scale,
+  skew cycles, κ ∈ {0, 0.2, …, 1} × 200 matrices; 10,000 MC runs per (P, format) for Swiss, Groups+KO and RR; exact for KO.
+- Nash: unique in 1200/1200 matrices (as expected for generic skew-symmetric games); mean support 1 (κ = 0) → 3.1 (0.6) → 7.0 (1).
+  Copeland set size 1 → 1.45 → 2.4.
+- Bug found and fixed during E4: the Nash uniqueness check used a fixed LP slack that made every game look non-unique. It now
+  uses the LP's own value, with a regression test. E0 was re-run afterwards (26/26 pass).
+
+P(winner ∈ Copeland set), mean over 200 matrices (CI half-widths ≈ 0.01–0.03; paired differences below are tighter):
+
+| κ | KO-random (7) | KO-elo (7) | Swiss (12) | Groups+KO (15) | Round robin (28) |
+|---|---|---|---|---|---|
+| 0 | 0.383 | 0.431 | 0.383 | 0.409 | 0.449 |
+| 0.4 | 0.376 | 0.408 | 0.376 | 0.401 | 0.435 |
+| 0.6 | 0.340 | 0.367 | 0.340 | 0.361 | 0.396 |
+| 1.0 | 0.313 | 0.308 | 0.313 | 0.315 | 0.316 |
+
+Paired differences (same matrices, 95% bootstrap CI), RR − KO-random: Copeland +0.067 / +0.056 / +0.003 at κ = 0 / 0.6 / 1;
+Nash mass +0.067 / +0.025 / −0.000; Borda +0.067 / +0.055 / −0.002 [−0.004, −0.001].
+KO-elo − KO-random on Copeland: +0.048 at κ = 0, +0.027 at 0.6, −0.005 [−0.014, +0.003] at 1.
+
+Interpretation: the interpretation to be tested ("round robin's advantage shrinks as κ grows") holds on all three metrics,
+and the advantage reaches zero at κ = 1. A reversal exists only on Borda at κ = 1 and is about 0.2 points, so it is
+negligible in practice. Elo seeding's advantage over a random draw also disappears with cycles, because it relies on the
+BT ranking. Even at κ = 0 the formats differ less than one might expect (RR crowns the top player 45% vs 38% for a random
+knockout) because medium-scale matches are close; this is all at one scale.
+
+Caveats: medium scale and skew cycles only; Copeland/Borda/Nash are three different "deserving" notions and agree only at κ = 0.
+
 ## 4. Limitations and threats to validity
 
 - All P are synthetic so far (tennis blocked), so we cannot yet say how cyclic real competitions are.
 - BC fitting uses a ridge regulariser, not the paper's (reason in E2); conclusions about fitted P depend on λ selection.
 - n = 16 results are local-search lower bounds with 10 restarts.
 - "Weakest" is defined by the Hodge/BT potential; under cycles there is no canonical weakest player (Borda alternative recorded).
+- E4 uses one scale (medium) and n = 8; the size of format differences will depend on decisiveness.
 - The scales are calibrated at κ = 0; at higher κ the same scale gives slightly less decisive matches
   (medium: mean |P − ½| 0.179 at κ = 0, 0.176 at 0.5, 0.172 at 1; recorded per matrix in `e1_n8_raw.csv`), so the rise
   in Π with κ is not an artefact of matches becoming more decisive.
