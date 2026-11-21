@@ -151,3 +151,30 @@ The stronger player then does *better* there than the weaker one did.
 
 💬 **Your thoughts:**
 >
+
+---
+
+## Step 4: E2, what if we only see match results, not the true odds? (archetype half done ✅, tennis blocked ⚠️)
+
+**Set-up:** we invented a small strategy game (not based on any real game) with three play styles in a
+rock-paper-scissors loop, plus individual skill. About 60% of what decides a match is the style matchup (κ ≈ 0.6).
+We *played* 10 or 50 matches between every pair, then "forgot" the true odds and estimated them with BT
+(one strength number per player) and with BC (strength plus style).
+
+**What we found:**
+- **BT hides the organiser's power.** Because BT can't represent cycles, it says the organiser can swing a player's
+  chances by about 6 points, when the truth is about 19 points. That's 3× too low. It also misses most of the players
+  who could be crowned.
+- **BC sees it.** With 50 matches per pair, BC estimates about 17 points of swing and finds most of the right crownable players.
+- **The data can tell which model to believe.** On fresh matches BC predicted better than BT in all 20 game instances.
+- **With little data (10 matches per pair) even BC underestimates a bit,** because with few matches the fit cautiously
+  leans back toward the simpler model.
+
+**A technical change I made (please sanity-check):** the Blade–Chest paper's way of preventing over-fitting turned out
+not to work in our setting (the fitted vectors just grew longer instead of simpler). So I used a standard alternative
+("ridge"). Both are in the code, and the reason is written up in RESULTS.md.
+
+**Tennis is blocked:** the public ATP data repository the plan pointed to no longer exists on GitHub. See the question below.
+
+💬 **Your thoughts:**
+>

@@ -15,6 +15,12 @@
 - **Trend holds at n = 16** (local search, lower bounds, 20 matrices/point, medium): K ≥ 4.9 [3.95, 5.75] at κ = 0,
   ≥ 9.5 [8.65, 10.3] at κ = 0.6, 16 at κ = 1; Π ≥ 0.106 → 0.158 → 0.204. (`outputs/csv/e1_n16.csv`)
 
+- **Fitting the wrong model hides the organiser's power.** Archetype game (synthetic, true κ ≈ 0.63, n = 8, 20 instances,
+  50 matches per pair): a BT fit puts organiser power at Π = 0.059 ± 0.004 against a true 0.185 ± 0.008 (about 3× too
+  low) and K at 1.8 vs 4.05. A BC fit recovers Π = 0.172 ± 0.009 and K = 4.2, and identifies the kingmakeable set with
+  Jaccard 0.80. BC also has lower held-out log-loss in 20/20 instances (by 0.079 ± 0.007 nats/match).
+  (`outputs/fig/F3_rigging_bt_vs_bc.pdf`, `outputs/csv/e2_archetype.csv`)
+
 **Surprises:**
 1. **P6 (new conjecture): under BT the kingmakeable set is always a top segment {1, …, K} of the strength order.** True in all
    1,200 BT matrices at n = 8. It fails with cycles (top-segment share 0.987 at κ = 0.1, 0.878 at κ = 0.6). See `theory/P6.md`.
@@ -132,9 +138,49 @@ and cycle type with 20 matrices per point.
 - Literature: Chung & Hwang (1978) proved the random-draw version under BT. The fixed-bracket swap form was not found
   stated anywhere, but we could not read the original paper, **so novelty must not be claimed without checking it.**
 
+### E2 — BT vs BC on (synthetic) real-style data (archetype game done; tennis blocked)
+
+- Command: `python experiments/e2_real.py --full`; seed 20261124; git commit a5817b9; runtime 41 s.
+- **Archetype game** (`km.data.make_archetype_game`): 3 archetypes in an R→P→S→R counter loop (blade/chest directions 120°
+  apart), σ_g = 0.5, cycle strength s = 0.8, vector noise σ_v = 0.3. These were tuned **before** any E2 metric was looked at, on
+  a 400-draw grid, to hit the spec's κ target: mean κ = 0.62 (sd 0.15), mean |P − ½| = 0.21. Grid over σ_g ∈ {0.5, 1, 1.5} ×
+  s ∈ {0.6, 0.8, 1, 1.2}. The 20 instances used have true κ = 0.634 ± 0.034.
+- Per instance and N ∈ {10, 50} matches per pair: independent train / validation / test samples from the true P. BT = MLE;
+  BC = d = 2 MLE, 3 random restarts, λ chosen on validation log-loss from {0.01, 0.1, 1, 3, 10, 30, 100} (chosen: mostly 1 at N = 10,
+  3 at N = 50).
+- **Change from the paper's regulariser (flag for the humans):** Chen & Joachims regularise with λΣ‖bᵢ − cᵢ‖². We found it
+  does not control complexity: as λ goes 0.01 → 1000 the fitted blades lengthen (mean norm 2 → 36) while κ stays 0.83 and the
+  test loss is unchanged, until the fit collapses to BT. λ selection then always picked the grid's top value. We therefore use a
+  ridge λΣ(‖bᵢ‖² + ‖cᵢ‖²), which shrinks BC smoothly to BT and gives interior λ. Both are in `km.models.fit_bc`.
+
+Results (mean ± s.e. over instances; n = 8: 20 instances, exhaustive; n = 16: 3 instances, local search, 10 restarts):
+
+| n | N/pair | model | test log-loss | κ of P | K | Π | Jaccard(kingmakeable, true) |
+|---|---|---|---|---|---|---|---|
+| 8 | – | true P | 0.567 / 0.568 | 0.634 | 4.05 ± 0.35 | 0.185 ± 0.008 | 1 |
+| 8 | 10 | BT | 0.669 ± 0.007 | 0 | 2.20 ± 0.31 | 0.065 ± 0.004 | 0.56 |
+| 8 | 10 | BC | 0.605 ± 0.013 | 0.50 | 3.25 ± 0.42 | 0.152 ± 0.011 | 0.64 |
+| 8 | 50 | BT | 0.655 ± 0.005 | 0 | 1.80 ± 0.27 | 0.059 ± 0.004 | 0.49 |
+| 8 | 50 | BC | 0.576 ± 0.008 | 0.62 | 4.20 ± 0.39 | 0.172 ± 0.009 | 0.80 |
+| 16 | – | true P | 0.577 | 0.644 | ≥ 12.7 | ≥ 0.187 | 1 |
+| 16 | 50 | BT | 0.658 | 0 | ≥ 4.7 | ≥ 0.069 | 0.37 |
+| 16 | 50 | BC | 0.583 | 0.60 | ≥ 11.7 | ≥ 0.178 | 0.87 |
+
+Interpretation: with a cyclic ground truth, BT fits (which by construction have κ = 0) underestimate organiser power about
+3× and miss most kingmakeable players. BC with 50 matches per pair recovers both, and wins on held-out log-loss every time,
+so log-loss correctly identifies the believable model here. With only 10 matches per pair the selected regularisation
+shrinks BC toward BT, so its organiser power is biased low (0.152 vs 0.185): finite data hides some of the power.
+The weakest player was kingmakeable in only 1 of 20 true matrices, in line with E1 at κ ≈ 0.6.
+
+**Tennis: not done.** The `JeffSackmann/tennis_atp` GitHub repository returned "Not Found" on 22 Nov 2026 (API and raw
+URLs, `master` and `main`). Per §5 we did not substitute another source. The loader and pipeline are ready: placing
+`atp_matches_2015.csv` … `atp_matches_2019.csv` in `data/raw/tennis_atp/` and re-running the script adds tennis and makes F3's
+right panel tennis. Without it, F3's right panel shows estimated vs true Π across archetype instances.
+
 ## 4. Limitations and threats to validity
 
-- Synthetic P only so far; whether real data has high κ is E2's question.
+- All P are synthetic so far (tennis blocked), so we cannot yet say how cyclic real competitions are.
+- BC fitting uses a ridge regulariser, not the paper's (reason in E2); conclusions about fitted P depend on λ selection.
 - n = 16 results are local-search lower bounds with 10 restarts.
 - "Weakest" is defined by the Hodge/BT potential; under cycles there is no canonical weakest player (Borda alternative recorded).
 - The scales are calibrated at κ = 0; at higher κ the same scale gives slightly less decisive matches
