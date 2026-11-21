@@ -121,3 +121,33 @@ the search can miss the best bracket.
      typical player's title chance (fair share with 8 players is 12.5%)."
    - Length: probably a compact version in Section 1 or 2 (one table + 3–4 sentences), maybe the full walk-through as a boxed
      example. Decide when drafting.
+
+---
+
+## Step 3: P3, can we *prove* that a pure ladder protects the bottom player? (done ✅, mostly)
+
+**The claim (P3):** in a pure-ladder (BT) world, take any bracket and swap a stronger player into a weaker player's slot.
+The stronger player then does *better* there than the weaker one did.
+
+**What we did:**
+1. **Tried hard to break it first.** About 1 million random tests plus 2.4 million steps of a search actively trying to
+   find a counterexample, with 4, 8 and 16 players. Zero failures. We checked that the same search *does* find failures
+   when there are cycles, so "zero" means something.
+2. **Checked the literature.** Chung & Hwang (1978) proved a related averaged version ("stronger players win more
+   *random-draw* knockouts under BT"). We couldn't find our exact "same bracket, swapped slot" version stated anywhere, but we
+   couldn't read their original paper. 👉 *Could you check it on JSTOR through the IITM library?*
+3. **Proved it.** The proof boils the claim down to a tiny "ladder" game: someone waits at the top while a challenger
+   climbs past a few fixed opponents. Proving "the stronger waiting player does better" in that ladder is enough. For
+   ladders of up to 4 steps, which covers every bracket up to 32 players, the computer algebra shows the difference is
+   (strength gap) × (a sum of positive terms), so it can never be negative. For 4 players the whole proof fits on paper.
+
+**Consequences, in words:**
+- **The bottom player can never be the favourite, under any bracket, for any number of players.** The proof is short:
+  your first-round opponent is stronger than you, and that alone means they beat your title chance.
+- But under BT the organiser *can* crown up to everyone except the bottom player. We found an 8-player world where 7
+  different players can be made favourite: seven nearly equal players plus one hopeless one, where whoever is drawn
+  against the hopeless player gets a free round.
+- So the honest BT story is: **the bottom is protected, the top is not.** With cycles, the bottom is no longer protected (P4, E1).
+
+💬 **Your thoughts:**
+>

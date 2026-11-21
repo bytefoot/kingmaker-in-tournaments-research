@@ -18,7 +18,10 @@
 **Surprises:**
 1. **P6 (new conjecture): under BT the kingmakeable set is always a top segment {1, …, K} of the strength order.** True in all
    1,200 BT matrices at n = 8. It fails with cycles (top-segment share 0.987 at κ = 0.1, 0.878 at κ = 0.6). See `theory/P6.md`.
-2. BT is more riggable than our hypothesis said: K = 1 in only 642/1,200 BT matrices, and one matrix had K = 6 of 8.
+2. **P3 has a clean proof structure:** it reduces exactly to a "Ladder Lemma" whose certificate factors as (x − y) times a
+   positive polynomial with (h+2)^h monomials (Cayley's tree numbers), verified for depths ≤ 4. The weakest-never-favourite
+   corollary has a short hand proof for every n. Under BT, K ≤ n − 1 and this is attained.
+3. BT is more riggable than our hypothesis said: K = 1 in only 642/1,200 BT matrices, and one matrix had K = 6 of 8.
    The "small kingmakeable set under BT" claim should be "a top segment, typically 1–3 players".
 
 ## 2. Theory items
@@ -27,10 +30,13 @@
 |---|---|---|---|
 | P1 | not attempted | deterministic outcomes: transitive ⇒ K = 1; cyclic ⇒ tournament-fixing literature | — |
 | P2 | example re-verified exactly (sympy, 30 digits); characterisation not attempted | BT is not organiser-proof; the example has K = 3 (A, B, C each favourite of one bracket) | `theory/P2.md` |
-| P3 | not attempted | BT swap-monotonicity | — |
+| P3 | **proved (computer-assisted) for n ≤ 32**; general n reduced to the Ladder Lemma (conjecture beyond depth 4). 0 violations in 999,480 random + 2.4 M adversarial tests | BT: stronger player in the weaker one's slot does strictly better | `theory/P3.md` |
+| P3(i) | **proved, all n** (hand proof) | weakest never favourite; more strongly, a player is always beaten in W by a stronger first-round opponent | `theory/P3.md` |
+| P3(ii) | **proved, all n** (known: Adler et al. 2017) | W_i increasing in g_i | `theory/P3.md` |
+| P3(iii) | **proved, all n; tight** (K = 7 found at n = 8) | under BT, K ≤ n − 1 | `theory/P3.md`, `outputs/csv/p3_max_K_bt.csv` |
 | P4 | example re-verified exactly (Fraction): W_B = 293/1000 is the unique max | cycles break P3; lowest-Borda B is crowned by {A,C}\|{B,D} | `theory/P4.md` |
 | P5 | not attempted; E1 data: mean K increases in κ in 59 of 60 adjacent steps (n = 8, 6 cells; the exception is within noise) | E[K] monotone in κ? threshold κ* for the weakest player | — |
-| P6 (new) | conjecture, 1,200 + 20 tests, no counterexample search yet | under BT the kingmakeable set is a top segment | `theory/P6.md` |
+| P6 (new) | conjecture: 0 violations in 1,200 (E1) + 230,000 random + 615,000 adversarial tests (n = 4, 8); not proved | under BT the kingmakeable set is a top segment | `theory/P6.md` |
 
 (P1(a) is exercised numerically by `tests/test_bracket.py::test_exhaustive_metrics_deterministic_transitive` for one
 n = 8 instance; that is a test, not a proof.)
@@ -111,6 +117,20 @@ recursion over all 40,320 seedings (no km.bracket code) reproduces K exactly on 
 Caveats: 200 matrices per cell gives CI half-widths on K of ~0.15–0.2, under 10% of the κ = 0 → 0.6 change (1.5 at medium).
 Mean K increases in 59 of 60 adjacent κ steps; the one exception (bc2 close, κ = 0.4 → 0.5: 2.845 → 2.780) is within the CIs. n = 16 is a single scale
 and cycle type with 20 matrices per point.
+
+### P3 search and proof (done)
+
+- `python theory/search_counterexamples.py --full`; seed 20261122; 35 s. Strength families: normal (scale 0.05–8), clustered
+  (P2-like), heavy-tailed, near-ties. Results in `outputs/csv/p3_search.csv`. P3: n = 4 / 8 / 16, 399,798 / 399,777 /
+  199,905 random tests, min slack ≥ 4e-40 (never negative); adversarial (2,000 × 400 per n) min slack ≥ 3e-34. P3(ii): 10⁶
+  tests, 0 violations. P3(i) and P6: n = 4: 200,000 random + 600,000 adversarial; n = 8: 30,000 random + 15,000 adversarial;
+  0 violations.
+- Detector validation: the same code applied to cyclic matrices (κ = 0.6) flags 42/300 P3 violations and 21/300 P6
+  violations, so a zero count under BT is meaningful.
+- `python theory/ladder_lemma.py`: symbolic certificate for ladder depths 0–4 (< 3 s).
+- `python theory/max_K_bt.py`: K = n − 1 attained at n = 4 and 8.
+- Literature: Chung & Hwang (1978) proved the random-draw version under BT. The fixed-bracket swap form was not found
+  stated anywhere, but we could not read the original paper, **so novelty must not be claimed without checking it.**
 
 ## 4. Limitations and threats to validity
 
