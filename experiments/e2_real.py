@@ -27,7 +27,7 @@ from km.plotting import COLORS, FULL, save, use_style
 from km.runlog import ROOT, write_csv
 
 GAME = {"sigma_g": 0.5, "s": 0.8, "sigma_v": 0.3}
-LAMBDAS = (0.01, 0.1, 1.0, 10.0)
+LAMBDAS = (0.01, 0.1, 1.0, 10.0, 100.0, 1000.0)
 TENNIS_DIR = ROOT / "data" / "raw" / "tennis_atp"
 
 
