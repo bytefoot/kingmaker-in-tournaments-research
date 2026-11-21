@@ -106,3 +106,18 @@ the search can miss the best bracket.
 
 💬 **Your thoughts:**
 >
+
+---
+
+## 📝 Notes for the report (things to make sure we write about)
+
+1. **Explain K and Π with the 4-player P2 example (Kevin liked this, 22 Nov).** Use one small table where each row is a
+   bracket and the columns show each player's title chance. K and Π can then be read straight off it:
+   - Favourite per bracket: C, B, A, so **K = 3** (D never). The favourite is always whoever is drawn against hopeless D,
+     because that player gets a near-free pass to the final. (C beats D 98%, then wins the final ~46%, giving 44.6%; A must
+     win two close matches, 51% × 56% giving 28.7%.)
+   - Best minus worst bracket per player: A, B, C each ≈ 23.4 points, D ≈ 0, so **Π ≈ 0.175**.
+   - Then: "Row 1 of our results = how many *different* players can be made favourite; row 2 = how far the bracket moves a
+     typical player's title chance (fair share with 8 players is 12.5%)."
+   - Length: probably a compact version in Section 1 or 2 (one table + 3–4 sentences), maybe the full walk-through as a boxed
+     example. Decide when drafting.
