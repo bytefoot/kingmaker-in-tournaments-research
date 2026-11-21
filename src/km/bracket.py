@@ -70,11 +70,14 @@ def win_probs(P: np.ndarray, brackets: np.ndarray) -> np.ndarray:
     """Exact win probabilities by the DP, vectorised over brackets.
 
     ``brackets`` has shape (B, n) or (n,).  Returns W of the same leading shape with W[b, i] = P(player i wins
-    bracket b), indexed by *player* (not leaf).
+    bracket b), indexed by *player* (not leaf).  ``P`` may also be a stack of shape (B, n, n), one matrix per bracket.
     """
     br = np.atleast_2d(brackets)
     B, n = br.shape
-    Q = P[br[:, :, None], br[:, None, :]]  # Q[b, k, l] = P[player at leaf k, player at leaf l]
+    if P.ndim == 3:  # Q[b, k, l] = P_b[player at leaf k, player at leaf l]
+        Q = P[np.arange(B)[:, None, None], br[:, :, None], br[:, None, :]]
+    else:
+        Q = P[br[:, :, None], br[:, None, :]]
     q = np.ones((B, n))
     leaf = np.arange(n)
     size = 1
