@@ -132,3 +132,60 @@ def calibrate_scale(n: int, target: float, rng: np.random.Generator, n_draws: in
     off = ~np.eye(n, dtype=bool)
     T = np.stack([random_ranking_unit(n, rng)[off] for _ in range(n_draws)])
     return float(brentq(lambda s: np.mean(np.abs(sigmoid(s * T) - 0.5)) - target, 1e-6, 1e4, xtol=1e-10))
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Fitting BT and BC to match outcomes.  ``wins[i, j]`` = number of times i beat j (diagonal 0).
+# ---------------------------------------------------------------------------------------------------------------
+
+def log_loss(P: np.ndarray, wins: np.ndarray) -> float:
+    """Mean negative log-likelihood per match of outcome counts under P (natural log)."""
+    return float(-np.sum(wins * np.log(np.clip(P, 1e-15, 1.0))) / wins.sum())
+
+
+def _bc_unpack(theta: np.ndarray, n: int, d: int):
+    return theta[:n], theta[n:n + n * d].reshape(n, d), theta[n + n * d:].reshape(n, d)
+
+
+def _fit(wins: np.ndarray, d: int, lam: float, theta0: np.ndarray, ridge: float) -> np.ndarray:
+    from scipy.optimize import minimize
+
+    n = len(wins)
+
+    def f(theta):
+        g, B, C = _bc_unpack(theta, n, d)
+        L = bc_logits(g, B, C)
+        G = -wins * sigmoid(-L)  # dNLL/dL[i, j] for observed i-beats-j
+        nll = -np.sum(wins * np.log(np.clip(sigmoid(L), 1e-300, 1)))
+        D = B - C
+        loss = nll + lam * np.sum(D**2) + ridge * np.sum(theta**2)
+        gg = G.sum(1) - G.sum(0)
+        A = G - G.T
+        gB, gC = A @ C + 2 * lam * D, -A @ B - 2 * lam * D
+        return loss, np.concatenate([gg, gB.ravel(), gC.ravel()]) + 2 * ridge * theta
+
+    res = minimize(f, theta0, jac=True, method="L-BFGS-B", options={"maxiter": 5000, "gtol": 1e-8})
+    return res.x
+
+
+def fit_bt_mle(wins: np.ndarray, ridge: float = 1e-4) -> np.ndarray:
+    """Maximum-likelihood BT strengths from outcome counts (tiny ridge for identifiability); returns P."""
+    n = len(wins)
+    theta = _fit(wins, 0, 0.0, np.zeros(n), ridge)
+    return sigmoid(bt_logits(theta[:n]))
+
+
+def fit_bc(wins: np.ndarray, d: int, lam: float, rng: np.random.Generator, restarts: int = 3,
+           ridge: float = 1e-4) -> np.ndarray:
+    """Blade-Chest (inner, with bias) MLE with the paper's regulariser λ Σ ||blade_i - chest_i||² (Chen & Joachims
+    2016, §3.4) plus a tiny ridge; best of ``restarts`` random initialisations.  Returns P."""
+    n = len(wins)
+    best, best_loss = None, np.inf
+    for _ in range(restarts):
+        theta = _fit(wins, d, lam, 0.5 * rng.standard_normal(n + 2 * n * d), ridge)
+        g, B, C = _bc_unpack(theta, n, d)
+        P = sigmoid(bc_logits(g, B, C))
+        loss = log_loss(P, wins) * wins.sum() + lam * np.sum((B - C) ** 2)
+        if loss < best_loss:
+            best, best_loss = P, loss
+    return best
