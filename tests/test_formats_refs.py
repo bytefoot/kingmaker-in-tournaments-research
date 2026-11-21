@@ -64,3 +64,11 @@ def test_copeland_borda():
     assert np.allclose(copeland(rps), 1 / 3) and np.allclose(borda(rps), 1 / 3)
     P = sigmoid(bt_logits(np.array([0.2, 1.5, -0.3])))
     assert copeland(P).tolist() == [0, 1, 0] and borda(P).tolist() == [0, 1, 0]
+
+
+def test_nash_unique_on_low_scale_bt():
+    # regression: a fixed LP slack once made near-flat BT games look non-unique
+    rng = np.random.default_rng(3)
+    for scale in (0.05, 1.0, 7.0):
+        out = nash(make_P(8, 0.0, scale, rng))
+        assert out["unique"] and out["x"].max() > 1 - 1e-6
