@@ -180,13 +180,15 @@ def fit_bt_mle(wins: np.ndarray, ridge: float = 1e-4) -> np.ndarray:
 
 
 def fit_bc(wins: np.ndarray, d: int, lam: float, rng: np.random.Generator, restarts: int = 3,
-           ridge: float = 1e-4, reg: str = "ridge") -> np.ndarray:
+           ridge: float = 1e-4, reg: str = "paper") -> np.ndarray:
     """Blade-Chest (inner, with bias) MLE, best of ``restarts`` random initialisations, plus a tiny ridge.  Returns P.
 
-    ``reg="paper"``: λ Σ ||blade_i - chest_i||² (Chen & Joachims 2016, §3.4).  This does not bound the scale: blade and
-    chest can grow long and nearly parallel, keeping the cyclic term at almost no penalty (we observed |blade| 2 -> 36
-    with κ unchanged as λ went 0.01 -> 1000), so λ barely controls complexity.
-    ``reg="ridge"`` (default): λ Σ (||blade_i||² + ||chest_i||²), which shrinks the cyclic term smoothly to 0 (BT) as λ grows.
+    ``reg="paper"`` (default): λ Σ ||blade_i - chest_i||² (Chen & Joachims 2016, §3.4).  It restrains vector scale only
+    weakly (blade and chest can grow long and nearly parallel: |blade| 2 -> 36 as λ goes 0.01 -> 1000 with κ unchanged),
+    so useful λ values are large (~1e3-1e4) and the λ grid must be wide; it collapses to BT around 1e5.
+    ``reg="ridge"``: λ Σ (||blade_i||² + ||chest_i||²), which shrinks the cyclic term to 0 (BT) smoothly at λ ~ 1-10.
+    E2 compared both on identical data: equal held-out log-loss; the paper's version estimates organiser power closer
+    to the truth.
     """
     n = len(wins)
     best, best_loss = None, np.inf

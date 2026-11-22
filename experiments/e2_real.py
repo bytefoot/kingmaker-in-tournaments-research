@@ -27,11 +27,11 @@ from km.plotting import COLORS, FULL, save, use_style
 from km.runlog import ROOT, write_csv
 
 GAME = {"sigma_g": 0.5, "s": 0.8, "sigma_v": 0.3}
-# BC regulariser and its λ grid (see km.models.fit_bc).  "ridge" is the main analysis; "paper" (Chen & Joachims'
-# λΣ||b-c||²) is the sensitivity check, with a grid wide enough to reach its collapse to BT.
+# BC regulariser and its λ grid (see km.models.fit_bc).  "paper" (Chen & Joachims' λΣ||b-c||²) is the main analysis; it
+# needs a wide grid because it restrains vector scale only weakly (best λ ~1e3-1e4).  "ridge" is the sensitivity check.
 LAMBDA_GRIDS = {"ridge": (0.01, 0.1, 1.0, 3.0, 10.0, 30.0, 100.0),
                 "paper": (0.01, 0.1, 1.0, 10.0, 100.0, 1e3, 1e4, 1e5, 1e6)}
-REG = "ridge"
+REG = "paper"
 TENNIS_DIR = ROOT / "data" / "raw" / "tennis_atp"
 
 
@@ -170,11 +170,11 @@ def main() -> None:
     mode.add_argument("--full", action="store_true")
     ap.add_argument("--seed", type=int, default=20261124)
     ap.add_argument("--plot-only", action="store_true", help="redraw F3 from the E2 CSVs")
-    ap.add_argument("--reg", choices=["ridge", "paper"], default="ridge", help="BC regulariser (paper = sensitivity check)")
+    ap.add_argument("--reg", choices=["paper", "ridge"], default="paper", help="BC regulariser (ridge = sensitivity check)")
     args = ap.parse_args()
     global REG
     REG = args.reg
-    sfx = "" if REG == "ridge" else "_paperreg"
+    sfx = "" if REG == "paper" else "_ridge"
     if args.plot_only:
         rd = lambda name: pd.read_csv(ROOT / "outputs" / "csv" / f"{name}.csv", comment="#")
         tp = rd("e2_tennis_players") if (ROOT / "outputs" / "csv" / "e2_tennis_players.csv").exists() else None
@@ -203,7 +203,7 @@ def main() -> None:
         print(t_rows.to_string(index=False))
     else:
         print("tennis: CSVs not found in data/raw/tennis_atp/ -- skipped")
-    if REG == "ridge":  # F3 shows the main analysis only
+    if REG == "paper":  # F3 shows the main analysis only
         plot(pp, summary, tennis_pp)
     pd.set_option("display.width", 200)
     print(summary.groupby(["n", "N_per_pair", "model"])[["test_logloss", "kappa", "K", "Pi", "weakest_kingmakeable",

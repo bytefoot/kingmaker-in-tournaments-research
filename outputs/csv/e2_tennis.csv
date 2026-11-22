@@ -1,9 +1,9 @@
 # experiment: e2_tennis
-# date_utc: 2026-11-22T16:20:53+00:00
-# git_commit: 2371176
+# date_utc: 2026-11-22T16:46:17+00:00
+# git_commit: 1411186
 # seed: 20261124
-# params: {"N_per_pair": [10, 50], "bc_regulariser": "ridge on blade and chest", "bc_restarts": 3, "game": {"s": 0.8, "sigma_g": 0.5, "sigma_v": 0.3}, "lambdas": [0.01, 0.1, 1.0, 3.0, 10.0, 30.0, 100.0], "mode": "full", "n16_instances": 3, "n8_instances": 20, "restarts_n16": 10, "tennis": {"coin_logloss": 0.6931471805599453, "n_matches": 614, "n_test": 123, "n_train": 491, "players": ["Dominic Thiem", "Novak Djokovic", "Rafael Nadal", "Roberto Bautista Agut", "David Goffin", "Alexander Zverev", "Kei Nishikori", "Marin Cilic", "John Isner", "Roger Federer", "Grigor Dimitrov", "Stan Wawrinka", "Milos Raonic", "Andy Murray", "Nick Kyrgios", "Juan Martin del Potro"]}}
-# runtime_s: 47.47
+# params: {"N_per_pair": [10, 50], "bc_regulariser": "ridge", "bc_restarts": 3, "game": {"s": 0.8, "sigma_g": 0.5, "sigma_v": 0.3}, "lambdas": [0.01, 0.1, 1.0, 3.0, 10.0, 30.0, 100.0], "mode": "full", "n16_instances": 3, "n8_instances": 20, "restarts_n16": 10, "tennis": {"coin_logloss": 0.6931471805599453, "n_matches": 614, "n_test": 123, "n_train": 491, "players": ["Dominic Thiem", "Novak Djokovic", "Rafael Nadal", "Roberto Bautista Agut", "David Goffin", "Alexander Zverev", "Kei Nishikori", "Marin Cilic", "John Isner", "Roger Federer", "Grigor Dimitrov", "Stan Wawrinka", "Milos Raonic", "Andy Murray", "Nick Kyrgios", "Juan Martin del Potro"]}}
+# runtime_s: 57.59
 model,test_logloss,lambda_bc,kappa,K_lb,Pi_lb,weakest_kingmakeable_found
-BT,0.6415594453056843,30.0,4.6356607064655115e-32,4,0.09210213101871545,False
-BC,0.6415606735617189,30.0,8.041373771886215e-24,4,0.09209951338107948,False
+BT,0.6415594453056843,3.0,4.6356607064655115e-32,4,0.0921031602853398,False
+BC,0.6415590457800782,3.0,0.02168755094730838,3,0.0952250975303765,False

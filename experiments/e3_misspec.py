@@ -69,7 +69,7 @@ def main() -> None:
     args = ap.parse_args()
     full = not args.quick
     p = {"mode": "full" if full else "quick", "kappas": [0.0, 0.3, 0.6], "reps": 200 if full else 10,
-         "scale": SCALE_MEDIUM_N8, "game": GAME, "game_instances": 20 if full else 2, "N_per_pair": 50, "bc_lambda": 3.0}
+         "scale": SCALE_MEDIUM_N8, "game": GAME, "game_instances": 20 if full else 2, "N_per_pair": 50, "bc_lambda": 1000.0, "bc_regulariser": "paper"}
     rng = np.random.default_rng(args.seed)
     t0 = time.time()
     rows, examples = [], {}
@@ -83,7 +83,7 @@ def main() -> None:
     for inst in range(p["game_instances"]):
         game = make_archetype_game(8, rng, **GAME)
         wins = sample_matches(game["P"], p["N_per_pair"], rng)
-        P_bt, P_bc = fit_bt_mle(wins), fit_bc(wins, 2, p["bc_lambda"], rng)
+        P_bt, P_bc = fit_bt_mle(wins), fit_bc(wins, 2, p["bc_lambda"], rng, reg="paper")
         df = elo_analysis(P_bc, P_bt)
         rows.append(df.assign(world="archetype: BC fit vs BT fit", rep=inst))
         rows.append(elo_analysis(game["P"], P_bt).assign(world="archetype: true P vs BT fit", rep=inst))
