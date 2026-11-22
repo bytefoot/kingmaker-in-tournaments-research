@@ -133,13 +133,12 @@ The stronger player then does *better* there than the weaker one did.
 1. **Tried hard to break it first.** About 1 million random tests plus 2.4 million steps of a search actively trying to
    find a counterexample, with 4, 8 and 16 players. Zero failures. We checked that the same search *does* find failures
    when there are cycles, so "zero" means something.
-2. **Checked the literature.** Chung & Hwang (1978) proved a related averaged version ("stronger players win more
-   *random-draw* knockouts under BT"). We couldn't find our exact "same bracket, swapped slot" version stated anywhere, but we
-   couldn't read their original paper. 👉 *Could you check it on JSTOR through the IITM library?*
-3. **Proved it.** The proof boils the claim down to a tiny "ladder" game: someone waits at the top while a challenger
-   climbs past a few fixed opponents. Proving "the stronger waiting player does better" in that ladder is enough. For
-   ladders of up to 4 steps, which covers every bracket up to 32 players, the computer algebra shows the difference is
-   (strength gap) × (a sum of positive terms), so it can never be negative. For 4 players the whole proof fits on paper.
+2. **Proved it our own way.** The proof boils the claim down to a tiny "ladder" game: someone waits at the top while a
+   challenger climbs past a few fixed opponents. Computer algebra shows that for ladders of up to 4 steps the difference is
+   always (strength gap) × (positive terms).
+3. **Then found it's already known (thanks to your PDF).** Chung & Hwang (1978) proved exactly this, for any number of
+   players and any bracket shape, and their proof also goes through "ladder trees". So in the report we **cite** P3 as their
+   theorem and don't claim it as ours. Our versions of the consequences below are still useful, and P6 is still open.
 
 **Consequences, in words:**
 - **The bottom player can never be the favourite, under any bracket, for any number of players.** The proof is short:

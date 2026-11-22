@@ -1,9 +1,9 @@
 # experiment: e2_archetype
-# date_utc: 2026-11-21T19:17:05+00:00
-# git_commit: a5817b9
+# date_utc: 2026-11-22T16:20:47+00:00
+# git_commit: 1b5685f
 # seed: 20261124
 # params: {"N_per_pair": [10, 50], "bc_regulariser": "ridge on blade and chest", "bc_restarts": 3, "game": {"s": 0.8, "sigma_g": 0.5, "sigma_v": 0.3}, "lambdas": [0.01, 0.1, 1.0, 3.0, 10.0, 30.0, 100.0], "mode": "full", "n16_instances": 3, "n8_instances": 20, "restarts_n16": 10}
-# runtime_s: 41.44
+# runtime_s: 41.53
 n,instance,N_per_pair,model,lambda_bc,test_logloss,kappa,K,Pi,weakest_kingmakeable,jaccard_kingmakeable_vs_true,max_abs_P_err
 8,0,10,true,1.0,0.5619571981350466,0.5142433390763821,5,0.21849804388619842,False,1.0,0.0
 8,0,10,BT,1.0,0.6592130594686701,5.819243110200651e-32,2,0.08879326026018132,False,0.4,0.453864142750063

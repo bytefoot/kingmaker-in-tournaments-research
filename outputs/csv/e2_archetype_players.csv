@@ -1,9 +1,9 @@
 # experiment: e2_archetype_players
-# date_utc: 2026-11-21T19:17:05+00:00
-# git_commit: a5817b9
+# date_utc: 2026-11-22T16:20:47+00:00
+# git_commit: 1b5685f
 # seed: 20261124
 # params: {"N_per_pair": [10, 50], "bc_regulariser": "ridge on blade and chest", "bc_restarts": 3, "game": {"s": 0.8, "sigma_g": 0.5, "sigma_v": 0.3}, "lambdas": [0.01, 0.1, 1.0, 3.0, 10.0, 30.0, 100.0], "mode": "full", "n16_instances": 3, "n8_instances": 20, "restarts_n16": 10}
-# runtime_s: 41.48
+# runtime_s: 41.57
 n,instance,N_per_pair,model,player,archetype,R,kingmakeable
 8,0,10,true,0,0,0.3780231762881102,True
 8,0,10,true,1,1,0.24267043356224738,True
