@@ -33,9 +33,10 @@
 **Surprises:**
 1. **P6 (new conjecture): under BT the kingmakeable set is always a top segment {1, …, K} of the strength order.** True in all
    1,200 BT matrices at n = 8. It fails with cycles (top-segment share 0.987 at κ = 0.1, 0.878 at κ = 0.6). See `theory/P6.md`.
-2. **P3 has a clean proof structure:** it reduces exactly to a "Ladder Lemma" whose certificate factors as (x − y) times a
-   positive polynomial with (h+2)^h monomials (Cayley's tree numbers), verified for depths ≤ 4. The weakest-never-favourite
-   corollary has a short hand proof for every n. Under BT, K ≤ n − 1 and this is attained.
+2. **P3 is not new:** it is exactly the main theorem of Chung & Hwang (1978), which we found only after proving it
+   ourselves. Our proof route (factorise, then a "Ladder Lemma") matches theirs (ladder trees, their Lemma 2). What we add
+   on top: under BT the weakest player is never favourite (one line from their theorem), K ≤ n − 1 is attained, and P6
+   (top-segment structure, still a conjecture). Side observation: our ladder certificate has (h+2)^h monomials (Cayley numbers).
 3. **An 8-player, 3-round Swiss with "most wins" crowns exactly the same distribution as a random knockout.** Round 2 pairs the four
    1–0 players at random, and round 3 forces the two 2–0 players to meet, so the champion's path *is* a random bracket. The 5
    extra matches only sort out the lower places. Confirmed: E4 metrics agree to 3 decimals, and 200k-run Swiss matches exact
@@ -49,8 +50,8 @@
 |---|---|---|---|
 | P1 | not attempted | deterministic outcomes: transitive ⇒ K = 1; cyclic ⇒ tournament-fixing literature | — |
 | P2 | example re-verified exactly (sympy, 30 digits); characterisation not attempted | BT is not organiser-proof; the example has K = 3 (A, B, C each favourite of one bracket) | `theory/P2.md` |
-| P3 | **proved (computer-assisted) for n ≤ 32**; general n reduced to the Ladder Lemma (conjecture beyond depth 4). 0 violations in 999,480 random + 2.4 M adversarial tests | BT: stronger player in the weaker one's slot does strictly better | `theory/P3.md` |
-| P3(i) | **proved, all n** (hand proof) | weakest never favourite; more strongly, a player is always beaten in W by a stronger first-round opponent | `theory/P3.md` |
+| P3 | **known theorem: Chung & Hwang (1978, JASA), all n, any tree**. Our independent computer-assisted proof covers n ≤ 32. 0 violations in 999,480 random + 2.4 M adversarial tests | BT: stronger player in the weaker one's slot does strictly better | `theory/P3.md` |
+| P3(i) | **proved, all n** (one line from Chung & Hwang's theorem) | weakest never favourite; more strongly, a player is always beaten in W by a stronger first-round opponent | `theory/P3.md` |
 | P3(ii) | **proved, all n** (known: Adler et al. 2017) | W_i increasing in g_i | `theory/P3.md` |
 | P3(iii) | **proved, all n; tight** (K = 7 found at n = 8) | under BT, K ≤ n − 1 | `theory/P3.md`, `outputs/csv/p3_max_K_bt.csv` |
 | P4 | example re-verified exactly (Fraction): W_B = 293/1000 is the unique max | cycles break P3; lowest-Borda B is crowned by {A,C}\|{B,D} | `theory/P4.md` |
@@ -148,8 +149,9 @@ and cycle type with 20 matrices per point.
   violations, so a zero count under BT is meaningful.
 - `python theory/ladder_lemma.py`: symbolic certificate for ladder depths 0–4 (< 3 s).
 - `python theory/max_K_bt.py`: K = n − 1 attained at n = 4 and 8.
-- Literature: Chung & Hwang (1978) proved the random-draw version under BT. The fixed-bracket swap form was not found
-  stated anywhere, but we could not read the original paper, **so novelty must not be claimed without checking it.**
+- Literature: **Chung & Hwang (1978) prove P3 itself** (their Theorem, any knockout tree, all n), plus the random-draw
+  average as a corollary, and they show both fail under strong stochastic transitivity alone. We read the original
+  (supplied by the humans on 22 Nov). P3 is cited, not claimed.
 
 ### E2 — BT vs BC on (synthetic) real-style data (archetype game done; tennis blocked)
 
