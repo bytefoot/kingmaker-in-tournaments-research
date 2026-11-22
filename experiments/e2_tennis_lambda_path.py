@@ -31,11 +31,13 @@ def to_wins(part):
 
 cut = int(0.8 * len(sub))
 train, test = to_wins(sub.iloc[:cut]), to_wins(sub.iloc[cut:])
-rows = [{"model": "BT", "lambda": np.nan, "kappa": 0.0, "train_logloss": log_loss(fit_bt_mle(train), train),
+rows = [{"model": "BT", "reg": "", "lambda": np.nan, "kappa": 0.0, "train_logloss": log_loss(fit_bt_mle(train), train),
          "test_logloss": log_loss(fit_bt_mle(train), test)}]
-for lam in (0.01, 0.1, 1.0, 3.0, 10.0, 30.0, 100.0):
-    P = fit_bc(train, 2, lam, rng)
-    rows.append({"model": "BC", "lambda": lam, "kappa": kappa(logit(P)), "train_logloss": log_loss(P, train),
+GRIDS = {"paper": (0.01, 1.0, 100.0, 1e3, 1e4, 1e5), "ridge": (0.01, 0.1, 1.0, 3.0, 10.0, 100.0)}
+for reg, grid in GRIDS.items():
+  for lam in grid:
+    P = fit_bc(train, 2, lam, rng, reg=reg)
+    rows.append({"model": "BC", "reg": reg, "lambda": lam, "kappa": kappa(logit(P)), "train_logloss": log_loss(P, train),
                  "test_logloss": log_loss(P, test)})
 out = pd.DataFrame(rows)
 write_csv(out, "e2_tennis_lambda_path", seed=20261124, params={"years": "2015-2019", "split": "time-ordered 80/20",

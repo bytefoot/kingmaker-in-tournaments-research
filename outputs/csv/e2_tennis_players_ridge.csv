@@ -1,0 +1,39 @@
+# experiment: e2_tennis_players_ridge
+# date_utc: 2026-11-22T16:48:42+00:00
+# git_commit: 4aa72e5
+# seed: 20261124
+# params: {"N_per_pair": [10, 50], "bc_regulariser": "ridge", "bc_restarts": 3, "game": {"s": 0.8, "sigma_g": 0.5, "sigma_v": 0.3}, "lambdas": [0.01, 0.1, 1.0, 3.0, 10.0, 30.0, 100.0], "mode": "full", "n16_instances": 3, "n8_instances": 20, "restarts_n16": 10, "tennis": {"coin_logloss": 0.6931471805599453, "n_matches": 614, "n_test": 123, "n_train": 491, "players": ["Dominic Thiem", "Novak Djokovic", "Rafael Nadal", "Roberto Bautista Agut", "David Goffin", "Alexander Zverev", "Kei Nishikori", "Marin Cilic", "John Isner", "Roger Federer", "Grigor Dimitrov", "Stan Wawrinka", "Milos Raonic", "Andy Murray", "Nick Kyrgios", "Juan Martin del Potro"]}}
+# runtime_s: 57.52
+model,player,R_lb,kingmakeable_found
+BT,Dominic Thiem,0.09064127982076768,False
+BT,Novak Djokovic,0.2373877575873786,True
+BT,Rafael Nadal,0.17346276884788575,True
+BT,Roberto Bautista Agut,0.00987323679319925,False
+BT,David Goffin,0.019477034729981902,False
+BT,Alexander Zverev,0.10086222671292738,False
+BT,Kei Nishikori,0.062383344290850316,False
+BT,Marin Cilic,0.019246039232443796,False
+BT,John Isner,0.026720025920143702,False
+BT,Roger Federer,0.21761641195760392,True
+BT,Grigor Dimitrov,0.041199435804473175,False
+BT,Stan Wawrinka,0.07215879999394906,False
+BT,Milos Raonic,0.037389986002206096,False
+BT,Andy Murray,0.1923940424278909,True
+BT,Nick Kyrgios,0.0491314276796712,False
+BT,Juan Martin del Potro,0.12370674676406405,False
+BC,Dominic Thiem,0.08381794594213629,False
+BC,Novak Djokovic,0.2269248114368361,True
+BC,Rafael Nadal,0.18617778306214802,False
+BC,Roberto Bautista Agut,0.009337164179712526,False
+BC,David Goffin,0.019873724341593634,False
+BC,Alexander Zverev,0.09740856654662933,False
+BC,Kei Nishikori,0.07195605957714554,False
+BC,Marin Cilic,0.018973312601745517,False
+BC,John Isner,0.02985978804483716,False
+BC,Roger Federer,0.23665641690067418,True
+BC,Grigor Dimitrov,0.04326800194827994,False
+BC,Stan Wawrinka,0.07478796342697631,False
+BC,Milos Raonic,0.040415495502288325,False
+BC,Andy Murray,0.20349187394720492,True
+BC,Nick Kyrgios,0.05245095618344931,False
+BC,Juan Martin del Potro,0.128201696844367,False

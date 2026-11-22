@@ -15,25 +15,15 @@
 - **Trend holds at n = 16** (local search, lower bounds, 20 matrices/point, medium): K ≥ 4.9 [3.95, 5.75] at κ = 0,
   ≥ 9.5 [8.65, 10.3] at κ = 0.6, 16 at κ = 1; Π ≥ 0.106 → 0.158 → 0.204. (`outputs/csv/e1_n16.csv`)
 
-- **Fitting the wrong model hides the organiser's power.** Archetype game (synthetic, true κ ≈ 0.63, n = 8, 20 instances,
-  50 matches per pair): a BT fit puts organiser power at Π = 0.059 ± 0.004 against a true 0.185 ± 0.008 (about 3× too
-  low) and K at 1.8 vs 4.05. A BC fit recovers Π = 0.172 ± 0.009 and K = 4.2, and identifies the kingmakeable set with
-  Jaccard 0.80. BC also has lower held-out log-loss in 20/20 instances (by 0.079 ± 0.007 nats/match).
-  (`outputs/fig/F3_rigging_bt_vs_bc.pdf`, `outputs/csv/e2_archetype.csv`)
-
-- **Round robin's edge shrinks to zero as cycles grow; it does not meaningfully reverse.** n = 8, medium scale, 200 matrices per κ:
-  RR minus random knockout in P(winner is a Copeland winner) is +0.067 [0.063, 0.070] at κ = 0, +0.056 at κ = 0.6,
-  +0.003 [0.002, 0.005] at κ = 1. Expected Nash mass of the winner falls for every format (RR 0.449 → 0.126) and all formats
-  converge at κ = 1 (≈ 1/8). On Borda, RR is very slightly *worse* at κ = 1 (−0.002 [−0.004, −0.001]): detectable, negligible.
-  So with strong cycles, 28 matches buy nothing over 7. (`outputs/fig/F5_formats_vs_kappa.pdf`, `outputs/csv/e4_summary.csv`)
-- **Elo seeding mispredicts more as κ grows.** Largest per-player gap between BT-predicted and actual title chance in the
-  Elo-seeded bracket: 0 at κ = 0, 0.046 ± 0.001 at κ = 0.3, 0.069 ± 0.002 at κ = 0.6, 0.078 ± 0.008 in the archetype game.
-  (`outputs/fig/F4_elo_pred_vs_actual.pdf`, `outputs/csv/e3_misspec.csv`)
-
+- **Fitting the wrong model hides the organiser's power.** Archetype game (synthetic, true κ ≈ 0.65, n = 8, 20 instances,
+  50 matches per pair): a BT fit puts organiser power at Π = 0.063 ± 0.004 against a true 0.197 ± 0.009 (3× too low) and
+  K at 2.3 vs 4.2. A BC fit (paper's regulariser) recovers Π = 0.199 ± 0.009 and K = 4.5, and has lower held-out log-loss
+  in 20/20 instances (by 0.081 ± 0.006 nats/match). The same holds with a ridge regulariser (Π = 0.184).
+  (`outputs/fig/F3_rigging_bt_vs_bc.pdf`, `outputs/csv/e2_archetype.csv`, `..._ridge.csv`)
 - **Real tennis looks like a ladder; apparent cycles are noise.** ATP 2015–2019, the 16 players with most mutual matches
-  (614 matches): held-out log-loss BT 0.6416 vs BC 0.6416 (λ chosen on validation shrinks BC to BT; κ ≈ 0). An
-  under-regularised BC "finds" κ = 0.79 and fits training data better (0.499 vs 0.589) but is far worse on later matches
-  (1.356). Organiser power is moderate (Π ≥ 0.092, K ≥ 4: Djokovic, Federer, Nadal, Murray, a top block, consistent with P6).
+  (614 matches): held-out log-loss BT 0.6416 vs BC 0.6415 (λ chosen on validation shrinks BC to BT; κ = 0). An
+  under-regularised BC "finds" κ ≈ 0.7–0.8 and fits training data better (0.495 vs 0.589) but is far worse on later matches
+  (1.13–1.81). Organiser power is moderate (Π ≥ 0.092, K ≥ 4: Djokovic, Federer, Nadal, Murray, a top block, consistent with P6).
   Lesson: **κ must be estimated out of sample**, or organiser power is overstated. (`outputs/csv/e2_tennis.csv`,
   `outputs/csv/e2_tennis_lambda_path.csv`, `outputs/fig/F3_rigging_bt_vs_bc.pdf` right panel)
 
@@ -170,28 +160,37 @@ and cycle type with 20 matrices per point.
 - Per instance and N ∈ {10, 50} matches per pair: independent train / validation / test samples from the true P. BT = MLE;
   BC = d = 2 MLE, 3 random restarts, λ chosen on validation log-loss from {0.01, 0.1, 1, 3, 10, 30, 100} (chosen: mostly 1 at N = 10,
   3 at N = 50).
-- **Change from the paper's regulariser (flag for the humans):** Chen & Joachims regularise with λΣ‖bᵢ − cᵢ‖². We found it
-  does not control complexity: as λ goes 0.01 → 1000 the fitted blades lengthen (mean norm 2 → 36) while κ stays 0.83 and the
-  test loss is unchanged, until the fit collapses to BT. λ selection then always picked the grid's top value. We therefore use a
-  ridge λΣ(‖bᵢ‖² + ‖cᵢ‖²), which shrinks BC smoothly to BT and gives interior λ. Both are in `km.models.fit_bc`.
+- **Regulariser (main analysis = the paper's).** Chen & Joachims regularise with λΣ‖bᵢ − cᵢ‖². This restrains vector
+  *scale* only weakly: as λ goes 0.01 → 1000, fitted blades lengthen (mean norm 2 → 36) with κ unchanged, and the fit
+  collapses to BT only near λ = 10⁵. Useful λ values are therefore large. With a first grid capped at 1000, selection
+  kept picking the cap, and **we wrongly concluded the penalty "doesn't work" and briefly switched to a ridge penalty
+  λΣ(‖bᵢ‖² + ‖cᵢ‖²). On the humans' challenge we ran both on identical data** (separate random stream for games and
+  samples): with a wide grid {0.01, …, 10⁶} the paper's penalty selects interior λ (mostly 10³) and matches ridge on held-out
+  log-loss (n = 8, N = 50: 0.5755 vs 0.5758, difference −0.0004 ± 0.0003), while estimating organiser power closer to the
+  truth (Π 0.199 vs ridge 0.184; true 0.197). So the main analysis uses the paper's penalty, and ridge is a sensitivity
+  check (`--reg ridge`, files `*_ridge.csv`). **Every E2 conclusion holds under both.**
+- Command: `python experiments/e2_real.py --full` (and `--reg ridge`); seed 20261124; git commit 4aa72e5; ~60 s each.
 
-Results (mean ± s.e. over instances; n = 8: 20 instances, exhaustive; n = 16: 3 instances, local search, 10 restarts):
+Results (mean over instances, ± s.e. where shown; n = 8: 20 instances, exhaustive; n = 16: 3 instances, local search):
 
-| n | N/pair | model | test log-loss | κ of P | K | Π | Jaccard(kingmakeable, true) |
+| n | N/pair | model | test log-loss | κ of P | K | Π | Jaccard vs true |
 |---|---|---|---|---|---|---|---|
-| 8 | – | true P | 0.567 / 0.568 | 0.634 | 4.05 ± 0.35 | 0.185 ± 0.008 | 1 |
-| 8 | 10 | BT | 0.669 ± 0.007 | 0 | 2.20 ± 0.31 | 0.065 ± 0.004 | 0.56 |
-| 8 | 10 | BC | 0.605 ± 0.013 | 0.50 | 3.25 ± 0.42 | 0.152 ± 0.011 | 0.64 |
-| 8 | 50 | BT | 0.655 ± 0.005 | 0 | 1.80 ± 0.27 | 0.059 ± 0.004 | 0.49 |
-| 8 | 50 | BC | 0.576 ± 0.008 | 0.62 | 4.20 ± 0.39 | 0.172 ± 0.009 | 0.80 |
-| 16 | – | true P | 0.577 | 0.644 | ≥ 12.7 | ≥ 0.187 | 1 |
-| 16 | 50 | BT | 0.658 | 0 | ≥ 4.7 | ≥ 0.069 | 0.37 |
-| 16 | 50 | BC | 0.583 | 0.60 | ≥ 11.7 | ≥ 0.178 | 0.87 |
+| 8 | – | true P | 0.563 / 0.568 | 0.649 | 4.20 ± 0.37 | 0.197 ± 0.009 | 1 |
+| 8 | 10 | BT | 0.665 ± 0.005 | 0 | 2.15 ± 0.27 | 0.066 ± 0.004 | 0.47 |
+| 8 | 10 | BC (paper) | 0.607 ± 0.010 | 0.59 | 4.10 ± 0.35 | 0.199 ± 0.013 | 0.64 |
+| 8 | 10 | BC (ridge) | 0.601 | 0.52 | 3.50 | 0.157 | 0.63 |
+| 8 | 50 | BT | 0.656 ± 0.004 | 0 | 2.30 ± 0.26 | 0.063 ± 0.004 | 0.56 |
+| 8 | 50 | BC (paper) | 0.575 ± 0.005 | 0.65 | 4.50 ± 0.27 | 0.199 ± 0.009 | 0.79 |
+| 8 | 50 | BC (ridge) | 0.576 | 0.62 | 4.10 | 0.184 | 0.82 |
+| 16 | – | true P | 0.558 | 0.584 | ≥ 8.3 | ≥ 0.184 | 1 |
+| 16 | 50 | BT | 0.642 | 0 | ≥ 1.7 | ≥ 0.062 | 0.47 |
+| 16 | 50 | BC (paper) | 0.562 | 0.59 | ≥ 8.3 | ≥ 0.182 | 1.00 |
 
-Interpretation: with a cyclic ground truth, BT fits (which by construction have κ = 0) underestimate organiser power about
-3× and miss most kingmakeable players. BC with 50 matches per pair recovers both, and wins on held-out log-loss every time,
-so log-loss correctly identifies the believable model here. With only 10 matches per pair the selected regularisation
-shrinks BC toward BT, so its organiser power is biased low (0.152 vs 0.185): finite data hides some of the power.
+Held-out log-loss, BC (paper) better than BT: 19/20 instances at N = 10 (by 0.058 ± 0.008), 20/20 at N = 50 (0.081 ± 0.006).
+
+Interpretation: with a cyclic ground truth, BT fits (κ = 0 by construction) underestimate organiser power about 3× and
+miss about half the kingmakeable players. BC recovers both, and held-out log-loss correctly prefers it. With only 10
+matches per pair the kingmakeable *set* is recovered less well (Jaccard 0.64), even though average power is right.
 The weakest player was kingmakeable in only 1 of 20 true matrices, in line with E1 at κ ≈ 0.6.
 
 **Tennis (done, 22 Nov).**
@@ -201,18 +200,21 @@ The weakest player was kingmakeable in only 1 of 20 true matrices, in line with 
   2c40e40c0f3a (authored by Jeff Sackmann, 6 May 2026)**, so it contains no changes by the mirror's owner; each 2015–2019
   file was last modified by Sackmann (30 Dec 2024). Checksums and provenance: `data/raw/tennis_atp/` (not committed).
 - Players: the 16 with the most matches among themselves (greedy removal from the top 60 by match count): 614 matches.
-  Time-ordered split: 491 train / 123 test; BC λ chosen on the last 20% of the training period (chosen λ = 30).
-- Held-out log-loss: BT 0.6416, BC 0.6416, coin flip 0.6931. Fitted κ ≈ 0 (BC reduces to BT). On the full data BT and BC
+  Time-ordered split: 491 train / 123 test; BC λ chosen on the last 20% of the training period (chosen λ = 10³, paper's
+  penalty; ridge chooses λ = 3).
+- Held-out log-loss: BT 0.6416, BC 0.6415, coin flip 0.6931. Fitted κ = 0 (BC reduces to BT; ridge gives κ = 0.02). On the full data BT and BC
   give the same metrics: K ≥ 4 (Djokovic, Federer, Nadal, Murray), Π ≥ 0.092 (local search, 10 restarts).
-- λ path (`experiments/e2_tennis_lambda_path.py`): λ = 0.01 gives κ = 0.79 with train log-loss 0.499 but test 1.356; λ = 0.1:
-  κ = 0.61, test 0.824; λ = 1: κ = 0.23, test 0.650; λ ≥ 3: κ = 0, test 0.642. In-sample cyclicity in a 614-match dataset is
-  mostly over-fitting.
+- λ path (`experiments/e2_tennis_lambda_path.py`, `outputs/csv/e2_tennis_lambda_path.csv`). Paper's penalty: λ = 0.01 →
+  κ = 0.72, train 0.495, test 1.813; λ = 1 → κ = 0.78, test 1.132; λ = 100 → κ = 0.55, test 0.757; λ ≥ 10³ → κ = 0, test
+  0.6415. Ridge: λ = 0.01 → κ = 0.79, test 1.355; λ ≥ 3 → κ = 0, test 0.6416. In-sample cyclicity in a 614-match dataset is
+  over-fitting.
 
 ## 4. Limitations and threats to validity
 
 - Only one real dataset (ATP, 16 players, 614 matches), and it is ~transitive out of sample. With this little data, BC
   could not detect weak cycles even if present, so "κ ≈ 0" means "no cycles detectable", not "proved transitive".
-- BC fitting uses a ridge regulariser, not the paper's (reason in E2); conclusions about fitted P depend on λ selection.
+- BC fits depend on λ selection. The paper's penalty needs a very wide grid (useful λ ~10³); the conclusions hold under
+  ridge as well (sensitivity check in E2).
 - n = 16 results are local-search lower bounds with 10 restarts.
 - "Weakest" is defined by the Hodge/BT potential; under cycles there is no canonical weakest player (Borda alternative recorded).
 - E4 uses one scale (medium) and n = 8; the size of format differences will depend on decisiveness.

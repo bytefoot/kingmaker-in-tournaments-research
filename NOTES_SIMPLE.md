@@ -162,16 +162,18 @@ We *played* 10 or 50 matches between every pair, then "forgot" the true odds and
 
 **What we found:**
 - **BT hides the organiser's power.** Because BT can't represent cycles, it says the organiser can swing a player's
-  chances by about 6 points, when the truth is about 19 points. That's 3× too low. It also misses most of the players
+  chances by about 6 points, when the truth is about 20 points. That's 3× too low. It also misses most of the players
   who could be crowned.
-- **BC sees it.** With 50 matches per pair, BC estimates about 17 points of swing and finds most of the right crownable players.
+- **BC sees it.** With 50 matches per pair, BC estimates about 20 points of swing (spot on) and finds most of the right crownable players.
 - **The data can tell which model to believe.** On fresh matches BC predicted better than BT in all 20 game instances.
-- **With little data (10 matches per pair) even BC underestimates a bit,** because with few matches the fit cautiously
-  leans back toward the simpler model.
+- **With little data (10 matches per pair) BC still gets the *amount* of power right, but is less sure *who* the
+  crownable players are.**
 
-**A technical change I made (please sanity-check):** the Blade–Chest paper's way of preventing over-fitting turned out
-not to work in our setting (the fitted vectors just grew longer instead of simpler). So I used a standard alternative
-("ridge"). Both are in the code, and the reason is written up in RESULTS.md.
+**Correction about the anti-over-fitting penalty (you were right to question it):** I first claimed the Blade–Chest paper's
+penalty "didn't work" and switched to a different one (ridge). When you pushed back, I tested both on *identical* data. The
+paper's penalty works fine; it just needs a much larger dial setting (λ ≈ 1000) than I had tried. It predicts as well as
+ridge and gets the organiser's power *closer* to the truth. So we now use **the paper's penalty**, with ridge as a backup
+check. All conclusions are the same either way.
 
 **Tennis (done, using a copy of Sackmann's data pinned to his own last commit):** among the 16 top players of
 2015–2019, there's **no detectable rock-paper-scissors**. BC predicts fresh matches exactly as well as BT, because the
