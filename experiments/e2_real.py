@@ -123,15 +123,17 @@ def plot(pp: pd.DataFrame, summary: pd.DataFrame, tennis_pp: pd.DataFrame | None
         ax.bar(g.player + (k - 1) * width, g.R, width=width * 0.92, color=color, label={"true": "true P"}.get(model, f"{model} fit"))
     ax.set_xticks(range(8), [f"{p}\n{'RPS'[a]}" for p, a in zip(range(8), d[d.model == 'true'].sort_values('player').archetype)])
     ax.set_xlabel("player (archetype)")
-    ax.set_ylabel("rigging range R_i = Wmax − Wmin")
-    ax.set_title("archetype game, one instance, 50 matches/pair", fontsize=9)
+    ax.set_ylabel(r"rigging range $R_i$ = Wmax − Wmin")
+    ax.set_title("archetype game (one instance, N = 50)", fontsize=9)
     ax.legend(loc="upper right")
     ax = axes[1]
     if tennis_pp is not None:
+        order = tennis_pp[tennis_pp.model == "BT"].sort_values("R_lb", ascending=False).player.tolist()
         for k, model in enumerate(("BT", "BC")):
-            g = tennis_pp[tennis_pp.model == model].reset_index(drop=True)
+            g = tennis_pp[tennis_pp.model == model].set_index("player").loc[order]
             ax.bar(np.arange(16) + (k - 0.5) * 0.4, g.R_lb, width=0.37, color=COLORS[model], label=f"{model} fit")
-        ax.set_xticks(range(16), [p.split()[-1][:6] for p in tennis_pp[tennis_pp.model == "BT"].player], rotation=90, fontsize=7)
+        surname = {"Juan Martin del Potro": "del Potro", "Roberto Bautista Agut": "Bautista Agut"}
+        ax.set_xticks(range(16), [surname.get(p, p.split()[-1]) for p in order], rotation=60, ha="right", fontsize=7)
         ax.set_ylabel("rigging range (local-search bound)")
         ax.set_title("ATP 2015–2019, 16 players", fontsize=9)
         ax.legend()
@@ -160,7 +162,13 @@ def main() -> None:
     mode.add_argument("--quick", action="store_true")
     mode.add_argument("--full", action="store_true")
     ap.add_argument("--seed", type=int, default=20261124)
+    ap.add_argument("--plot-only", action="store_true", help="redraw F3 from the E2 CSVs")
     args = ap.parse_args()
+    if args.plot_only:
+        rd = lambda name: pd.read_csv(ROOT / "outputs" / "csv" / f"{name}.csv", comment="#")
+        tp = rd("e2_tennis_players") if (ROOT / "outputs" / "csv" / "e2_tennis_players.csv").exists() else None
+        plot(rd("e2_archetype_players"), rd("e2_archetype"), tp)
+        return
     full = not args.quick
     p = {"mode": "full" if full else "quick", "game": GAME, "lambdas": LAMBDAS, "N_per_pair": [10, 50],
          "n8_instances": 20 if full else 2, "n16_instances": 3 if full else 1, "restarts_n16": 10, "bc_restarts": 3, "bc_regulariser": "ridge on blade and chest"}

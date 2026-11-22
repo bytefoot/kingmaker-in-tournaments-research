@@ -173,7 +173,12 @@ We *played* 10 or 50 matches between every pair, then "forgot" the true odds and
 not to work in our setting (the fitted vectors just grew longer instead of simpler). So I used a standard alternative
 ("ridge"). Both are in the code, and the reason is written up in RESULTS.md.
 
-**Tennis is blocked:** the public ATP data repository the plan pointed to no longer exists on GitHub. See the question below.
+**Tennis (done, using a copy of Sackmann's data pinned to his own last commit):** among the 16 top players of
+2015–2019, there's **no detectable rock-paper-scissors**. BC predicts fresh matches exactly as well as BT, because the
+fit chooses to shrink BC back to BT. A sloppily fitted BC *claims* tennis is very cyclic (κ ≈ 0.8) but then predicts later
+matches far worse than a coin flip. 👉 **Lesson for the report: you have to measure cyclicity on held-out matches, or you'll
+"find" cycles that are just noise and overstate the organiser's power.** In tennis the crownable players are the Big
+Four (Djokovic, Federer, Nadal, Murray), a top block exactly as P6 predicts for a ladder world.
 
 💬 **Your thoughts:**
 >

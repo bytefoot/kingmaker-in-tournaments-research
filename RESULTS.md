@@ -30,6 +30,13 @@
   Elo-seeded bracket: 0 at κ = 0, 0.046 ± 0.001 at κ = 0.3, 0.069 ± 0.002 at κ = 0.6, 0.078 ± 0.008 in the archetype game.
   (`outputs/fig/F4_elo_pred_vs_actual.pdf`, `outputs/csv/e3_misspec.csv`)
 
+- **Real tennis looks like a ladder; apparent cycles are noise.** ATP 2015–2019, the 16 players with most mutual matches
+  (614 matches): held-out log-loss BT 0.6416 vs BC 0.6416 (λ chosen on validation shrinks BC to BT; κ ≈ 0). An
+  under-regularised BC "finds" κ = 0.79 and fits training data better (0.499 vs 0.589) but is far worse on later matches
+  (1.356). Organiser power is moderate (Π ≥ 0.092, K ≥ 4: Djokovic, Federer, Nadal, Murray, a top block, consistent with P6).
+  Lesson: **κ must be estimated out of sample**, or organiser power is overstated. (`outputs/csv/e2_tennis.csv`,
+  `outputs/csv/e2_tennis_lambda_path.csv`, `outputs/fig/F3_rigging_bt_vs_bc.pdf` right panel)
+
 **Surprises:**
 1. **P6 (new conjecture): under BT the kingmakeable set is always a top segment {1, …, K} of the strength order.** True in all
    1,200 BT matrices at n = 8. It fails with cycles (top-segment share 0.987 at κ = 0.1, 0.878 at κ = 0.6). See `theory/P6.md`.
@@ -187,66 +194,24 @@ so log-loss correctly identifies the believable model here. With only 10 matches
 shrinks BC toward BT, so its organiser power is biased low (0.152 vs 0.185): finite data hides some of the power.
 The weakest player was kingmakeable in only 1 of 20 true matrices, in line with E1 at κ ≈ 0.6.
 
-**Tennis: not done.** The `JeffSackmann/tennis_atp` GitHub repository returned "Not Found" on 22 Nov 2026 (API and raw
-URLs, `master` and `main`). Per §5 we did not substitute another source. The loader and pipeline are ready: placing
-`atp_matches_2015.csv` … `atp_matches_2019.csv` in `data/raw/tennis_atp/` and re-running the script adds tennis and makes F3's
-right panel tennis. Without it, F3's right panel shows estimated vs true Π across archetype instances.
-
-### E3 — Elo seeding in a cyclic world (done)
-
-- Command: `python experiments/e3_misspec.py --full`; seed 20261125; git commit 3e95c67; runtime 0.6 s.
-- make_P (n = 8, medium, skew) at κ ∈ {0, 0.3, 0.6} × 200 matrices: BT fit = least-squares (exact at κ = 0). Archetype game
-  (20 instances, 50 matches/pair): BT MLE vs BC fit (ridge λ = 3, the value E2 most often selected) from the same data, and also
-  vs the true P.
-- Per matrix (mean ± s.e.):
-
-| world | max \|actual − predicted\| W | top seed's gain | Elo bracket's percentile for top seed |
-|---|---|---|---|
-| κ = 0 (control) | 0.000 | 0.000 | 0.871 ± 0.003 |
-| κ = 0.3 | 0.046 ± 0.001 | −0.009 ± 0.002 | 0.760 ± 0.013 |
-| κ = 0.6 | 0.069 ± 0.002 | −0.017 ± 0.004 | 0.650 ± 0.019 |
-| archetype, BC vs BT fit | 0.078 ± 0.008 | +0.020 ± 0.014 | 0.707 ± 0.067 |
-| archetype, true P vs BT fit | 0.097 ± 0.009 | +0.022 ± 0.018 | 0.684 ± 0.070 |
-
-Interpretation: under cycles the Elo bracket's promise ("seed 1 is protected") weakens. In the synthetic worlds the top seed's
-actual title chance is lower than predicted, and the bracket is a progressively less favourable draw for them (87th → 65th
-percentile of all 315). Gains and losses are matchup-driven: e.g. in the archetype example the 2nd seed gains +0.07 because
-its semifinal path avoids its counter-archetype. Even at κ = 0 standard seeding is not the best bracket for the top seed
-(87th percentile), consistent with P2.
-
-### E4 — formats (done)
-
-- Command: `python experiments/e4_formats.py --full`; seed 20261126; git commit f46e38b; runtime 97 s. n = 8, medium scale,
-  skew cycles, κ ∈ {0, 0.2, …, 1} × 200 matrices; 10,000 MC runs per (P, format) for Swiss, Groups+KO and RR; exact for KO.
-- Nash: unique in 1200/1200 matrices (as expected for generic skew-symmetric games); mean support 1 (κ = 0) → 3.1 (0.6) → 7.0 (1).
-  Copeland set size 1 → 1.45 → 2.4.
-- Bug found and fixed during E4: the Nash uniqueness check used a fixed LP slack that made every game look non-unique. It now
-  uses the LP's own value, with a regression test. E0 was re-run afterwards (26/26 pass).
-
-P(winner ∈ Copeland set), mean over 200 matrices (CI half-widths ≈ 0.01–0.03; paired differences below are tighter):
-
-| κ | KO-random (7) | KO-elo (7) | Swiss (12) | Groups+KO (15) | Round robin (28) |
-|---|---|---|---|---|---|
-| 0 | 0.383 | 0.431 | 0.383 | 0.409 | 0.449 |
-| 0.4 | 0.376 | 0.408 | 0.376 | 0.401 | 0.435 |
-| 0.6 | 0.340 | 0.367 | 0.340 | 0.361 | 0.396 |
-| 1.0 | 0.313 | 0.308 | 0.313 | 0.315 | 0.316 |
-
-Paired differences (same matrices, 95% bootstrap CI), RR − KO-random: Copeland +0.067 / +0.056 / +0.003 at κ = 0 / 0.6 / 1;
-Nash mass +0.067 / +0.025 / −0.000; Borda +0.067 / +0.055 / −0.002 [−0.004, −0.001].
-KO-elo − KO-random on Copeland: +0.048 at κ = 0, +0.027 at 0.6, −0.005 [−0.014, +0.003] at 1.
-
-Interpretation: the interpretation to be tested ("round robin's advantage shrinks as κ grows") holds on all three metrics,
-and the advantage reaches zero at κ = 1. A reversal exists only on Borda at κ = 1 and is about 0.2 points, so it is
-negligible in practice. Elo seeding's advantage over a random draw also disappears with cycles, because it relies on the
-BT ranking. Even at κ = 0 the formats differ less than one might expect (RR crowns the top player 45% vs 38% for a random
-knockout) because medium-scale matches are close; this is all at one scale.
-
-Caveats: medium scale and skew cycles only; Copeland/Borda/Nash are three different "deserving" notions and agree only at κ = 0.
+**Tennis (done, 22 Nov).**
+- Data: Jeff Sackmann's `atp_matches_2015…2019.csv`. The original `JeffSackmann/tennis_atp` repository was not found on
+  GitHub on 22 Nov 2026. The humans pointed to `jasonmauss/tennis_atp`, but that copy is from March 2015 and has no match
+  files. We used `zvonimir-rezo/tennis_atp`, a copy carrying Sackmann's full commit history, **pinned to commit
+  2c40e40c0f3a (authored by Jeff Sackmann, 6 May 2026)**, so it contains no changes by the mirror's owner; each 2015–2019
+  file was last modified by Sackmann (30 Dec 2024). Checksums and provenance: `data/raw/tennis_atp/` (not committed).
+- Players: the 16 with the most matches among themselves (greedy removal from the top 60 by match count): 614 matches.
+  Time-ordered split: 491 train / 123 test; BC λ chosen on the last 20% of the training period (chosen λ = 30).
+- Held-out log-loss: BT 0.6416, BC 0.6416, coin flip 0.6931. Fitted κ ≈ 0 (BC reduces to BT). On the full data BT and BC
+  give the same metrics: K ≥ 4 (Djokovic, Federer, Nadal, Murray), Π ≥ 0.092 (local search, 10 restarts).
+- λ path (`experiments/e2_tennis_lambda_path.py`): λ = 0.01 gives κ = 0.79 with train log-loss 0.499 but test 1.356; λ = 0.1:
+  κ = 0.61, test 0.824; λ = 1: κ = 0.23, test 0.650; λ ≥ 3: κ = 0, test 0.642. In-sample cyclicity in a 614-match dataset is
+  mostly over-fitting.
 
 ## 4. Limitations and threats to validity
 
-- All P are synthetic so far (tennis blocked), so we cannot yet say how cyclic real competitions are.
+- Only one real dataset (ATP, 16 players, 614 matches), and it is ~transitive out of sample. With this little data, BC
+  could not detect weak cycles even if present, so "κ ≈ 0" means "no cycles detectable", not "proved transitive".
 - BC fitting uses a ridge regulariser, not the paper's (reason in E2); conclusions about fitted P depend on λ selection.
 - n = 16 results are local-search lower bounds with 10 restarts.
 - "Weakest" is defined by the Hodge/BT potential; under cycles there is no canonical weakest player (Borda alternative recorded).
