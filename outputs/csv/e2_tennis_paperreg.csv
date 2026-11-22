@@ -1,0 +1,9 @@
+# experiment: e2_tennis_paperreg
+# date_utc: 2026-11-22T16:45:08+00:00
+# git_commit: 020fa78+dirty
+# seed: 20261124
+# params: {"N_per_pair": [10, 50], "bc_regulariser": "paper", "bc_restarts": 3, "game": {"s": 0.8, "sigma_g": 0.5, "sigma_v": 0.3}, "lambdas": [0.01, 0.1, 1.0, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0], "mode": "quick", "n16_instances": 1, "n8_instances": 2, "restarts_n16": 10, "tennis": {"coin_logloss": 0.6931471805599453, "n_matches": 614, "n_test": 123, "n_train": 491, "players": ["Dominic Thiem", "Novak Djokovic", "Rafael Nadal", "Roberto Bautista Agut", "David Goffin", "Alexander Zverev", "Kei Nishikori", "Marin Cilic", "John Isner", "Roger Federer", "Grigor Dimitrov", "Stan Wawrinka", "Milos Raonic", "Andy Murray", "Nick Kyrgios", "Juan Martin del Potro"]}}
+# runtime_s: 28.88
+model,test_logloss,lambda_bc,kappa,K_lb,Pi_lb,weakest_kingmakeable_found
+BT,0.6415594453056843,100000.0,4.6356607064655115e-32,4,0.09209921016565865,False
+BC,0.6415250296179573,100000.0,7.534862444927824e-11,4,0.09202639434446588,False

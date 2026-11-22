@@ -27,13 +27,17 @@ from km.plotting import COLORS, FULL, save, use_style
 from km.runlog import ROOT, write_csv
 
 GAME = {"sigma_g": 0.5, "s": 0.8, "sigma_v": 0.3}
-LAMBDAS = (0.01, 0.1, 1.0, 3.0, 10.0, 30.0, 100.0)  # ridge on blade/chest; see km.models.fit_bc for why not the paper's
+# BC regulariser and its λ grid (see km.models.fit_bc).  "ridge" is the main analysis; "paper" (Chen & Joachims'
+# λΣ||b-c||²) is the sensitivity check, with a grid wide enough to reach its collapse to BT.
+LAMBDA_GRIDS = {"ridge": (0.01, 0.1, 1.0, 3.0, 10.0, 30.0, 100.0),
+                "paper": (0.01, 0.1, 1.0, 10.0, 100.0, 1e3, 1e4, 1e5, 1e6)}
+REG = "ridge"
 TENNIS_DIR = ROOT / "data" / "raw" / "tennis_atp"
 
 
 def fit_both(train: np.ndarray, val: np.ndarray, rng: np.random.Generator) -> tuple[np.ndarray, np.ndarray, float]:
     """BT MLE on train; BC d=2 with λ minimising validation log-loss.  Returns (P_bt, P_bc, λ)."""
-    fits = {lam: fit_bc(train, 2, lam, rng) for lam in LAMBDAS}
+    fits = {lam: fit_bc(train, 2, lam, rng, reg=REG) for lam in LAMBDA_GRIDS[REG]}
     lam = min(fits, key=lambda l: log_loss(fits[l], val))
     return fit_bt_mle(train), fits[lam], lam
 
@@ -55,13 +59,16 @@ def metrics(P: np.ndarray, rng: np.random.Generator, restarts: int) -> dict:
             "weakest_kingmakeable": bool(km[weakest])}
 
 
-def run_archetype(n: int, n_instances: int, Ns, restarts: int, rng: np.random.Generator) -> tuple[pd.DataFrame, list]:
+def run_archetype(n: int, n_instances: int, Ns, restarts: int, rng: np.random.Generator, data_seed: int) -> tuple[pd.DataFrame, list]:
+    """``rng`` drives fitting and local search; games and match samples come from their own stream (``data_seed``),
+    so runs with different regularisers see identical data."""
     rows, per_player = [], []
+    data_rng = np.random.default_rng([data_seed, n])
     for inst in range(n_instances):
-        game = make_archetype_game(n, rng, **GAME)
+        game = make_archetype_game(n, data_rng, **GAME)
         truth = metrics(game["P"], rng, restarts)
         for N in Ns:
-            train, val, test = (sample_matches(game["P"], N, rng) for _ in range(3))
+            train, val, test = (sample_matches(game["P"], N, data_rng) for _ in range(3))
             P_bt, P_bc, lam = fit_both(train, val, rng)
             for model, P in (("true", game["P"]), ("BT", P_bt), ("BC", P_bc)):
                 m = truth if model == "true" else metrics(P, rng, restarts)
@@ -95,12 +102,12 @@ def run_tennis(rng: np.random.Generator, restarts: int) -> tuple[pd.DataFrame, l
     cut, inner = int(0.8 * len(sub)), int(0.64 * len(sub))  # time-ordered: train | test; λ chosen on train's last 20%
     P_bt_tr, P_bc_tr, lam = fit_both(to_wins(sub.iloc[:inner]), to_wins(sub.iloc[inner:cut]), rng)
     train, test = to_wins(sub.iloc[:cut]), to_wins(sub.iloc[cut:])
-    P_bt_80, P_bc_80 = fit_bt_mle(train), fit_bc(train, 2, lam, rng)
+    P_bt_80, P_bc_80 = fit_bt_mle(train), fit_bc(train, 2, lam, rng, reg=REG)
     ll = {"BT": log_loss(P_bt_80, test), "BC": log_loss(P_bc_80, test),
           "coin": float(np.log(2))}
     allw = to_wins(sub)
     rows, per_player = [], []
-    for model, P in (("BT", fit_bt_mle(allw)), ("BC", fit_bc(allw, 2, lam, rng))):
+    for model, P in (("BT", fit_bt_mle(allw)), ("BC", fit_bc(allw, 2, lam, rng, reg=REG))):
         m = metrics(P, rng, restarts)
         rows.append({"model": model, "test_logloss": ll[model], "lambda_bc": lam, "kappa": m["kappa"], "K_lb": m["K"],
                      "Pi_lb": m["Pi"], "weakest_kingmakeable_found": m["weakest_kingmakeable"]})
@@ -163,36 +170,41 @@ def main() -> None:
     mode.add_argument("--full", action="store_true")
     ap.add_argument("--seed", type=int, default=20261124)
     ap.add_argument("--plot-only", action="store_true", help="redraw F3 from the E2 CSVs")
+    ap.add_argument("--reg", choices=["ridge", "paper"], default="ridge", help="BC regulariser (paper = sensitivity check)")
     args = ap.parse_args()
+    global REG
+    REG = args.reg
+    sfx = "" if REG == "ridge" else "_paperreg"
     if args.plot_only:
         rd = lambda name: pd.read_csv(ROOT / "outputs" / "csv" / f"{name}.csv", comment="#")
         tp = rd("e2_tennis_players") if (ROOT / "outputs" / "csv" / "e2_tennis_players.csv").exists() else None
         plot(rd("e2_archetype_players"), rd("e2_archetype"), tp)
         return
     full = not args.quick
-    p = {"mode": "full" if full else "quick", "game": GAME, "lambdas": LAMBDAS, "N_per_pair": [10, 50],
-         "n8_instances": 20 if full else 2, "n16_instances": 3 if full else 1, "restarts_n16": 10, "bc_restarts": 3, "bc_regulariser": "ridge on blade and chest"}
+    p = {"mode": "full" if full else "quick", "game": GAME, "lambdas": LAMBDA_GRIDS[REG], "N_per_pair": [10, 50],
+         "n8_instances": 20 if full else 2, "n16_instances": 3 if full else 1, "restarts_n16": 10, "bc_restarts": 3, "bc_regulariser": REG}
     rng = np.random.default_rng(args.seed)
     t0 = time.time()
-    s8, pp8 = run_archetype(8, p["n8_instances"], p["N_per_pair"], 0, rng)
+    s8, pp8 = run_archetype(8, p["n8_instances"], p["N_per_pair"], 0, rng, args.seed)
     print(f"archetype n=8 done {time.time() - t0:.0f}s")
-    s16, pp16 = run_archetype(16, p["n16_instances"], p["N_per_pair"], p["restarts_n16"], rng)
+    s16, pp16 = run_archetype(16, p["n16_instances"], p["N_per_pair"], p["restarts_n16"], rng, args.seed)
     print(f"archetype n=16 done {time.time() - t0:.0f}s")
     summary, pp = pd.concat([s8, s16], ignore_index=True), pd.DataFrame(pp8 + pp16)
-    write_csv(summary, "e2_archetype", seed=args.seed, params=p, runtime_s=time.time() - t0)
-    write_csv(pp, "e2_archetype_players", seed=args.seed, params=p, runtime_s=time.time() - t0)
+    write_csv(summary, "e2_archetype" + sfx, seed=args.seed, params=p, runtime_s=time.time() - t0)
+    write_csv(pp, "e2_archetype_players" + sfx, seed=args.seed, params=p, runtime_s=time.time() - t0)
 
     tennis_pp = None
     if all((TENNIS_DIR / f"atp_matches_{y}.csv").exists() for y in range(2015, 2020)):
         t_rows, t_pp, info = run_tennis(rng, p["restarts_n16"])
         p["tennis"] = info
-        write_csv(t_rows, "e2_tennis", seed=args.seed, params=p, runtime_s=time.time() - t0)
+        write_csv(t_rows, "e2_tennis" + sfx, seed=args.seed, params=p, runtime_s=time.time() - t0)
         tennis_pp = pd.DataFrame(t_pp)
-        write_csv(tennis_pp, "e2_tennis_players", seed=args.seed, params=p, runtime_s=time.time() - t0)
+        write_csv(tennis_pp, "e2_tennis_players" + sfx, seed=args.seed, params=p, runtime_s=time.time() - t0)
         print(t_rows.to_string(index=False))
     else:
         print("tennis: CSVs not found in data/raw/tennis_atp/ -- skipped")
-    plot(pp, summary, tennis_pp)
+    if REG == "ridge":  # F3 shows the main analysis only
+        plot(pp, summary, tennis_pp)
     pd.set_option("display.width", 200)
     print(summary.groupby(["n", "N_per_pair", "model"])[["test_logloss", "kappa", "K", "Pi", "weakest_kingmakeable",
                                                           "jaccard_kingmakeable_vs_true", "max_abs_P_err"]].mean().round(3))
