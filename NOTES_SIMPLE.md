@@ -228,3 +228,29 @@ Picture: `outputs/fig/F5_formats_vs_kappa.pdf`.
 
 💬 **Your thoughts:**
 >
+
+---
+
+## Step 7: P4 tidy-up + pictures F0 and F1 (done ✅)
+
+- **Cleaner example (for the report):** A is strongest, D weakest on average (43% average win rate). In the bracket
+  {A vs C} | {B vs D}, C (A's nemesis) knocks A out 70% of the time, and D beats both B and C 60% of the time. So **D, the
+  weakest, is the favourite at exactly 27%**. Picture: `outputs/fig/F1_p4_example.pdf`.
+- **How much cycling does that take?** A lot. Even with 4 players we found nothing below κ ≈ 0.56 without resorting to
+  near-certain matches. That fits E1, so the bottom player is protected unless cycles dominate.
+- **F0** (`outputs/fig/F0_setup.pdf`) is the one-picture overview of the whole pipeline the professor asked for.
+
+## Step 8: E5, does "best-of-3" make things fairer? (done ✅)
+
+Surprisingly, **no, it makes the organiser more powerful when there are cycles.** Best-of-3 removes luck, so matchups
+decide more. In a pure ladder that barely matters (+1.6 points of swing). In a rock-paper-scissors world it adds about
+12 points (20 → 31). Picture: `outputs/fig/F6_bo3.pdf`.
+
+💬 **Your thoughts:**
+>
+
+## Step 9: Section 1 draft
+
+A first draft of report Section 1 (question, why it matters, key idea, findings, approach) is at the end of
+`RESULTS.md`. Read it and tell me what doesn't sound like *your* project. That section carries the most marks, so it
+should match how you'd explain the idea.

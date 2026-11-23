@@ -27,6 +27,11 @@
   Lesson: **κ must be estimated out of sample**, or organiser power is overstated. (`outputs/csv/e2_tennis.csv`,
   `outputs/csv/e2_tennis_lambda_path.csv`, `outputs/fig/F3_rigging_bt_vs_bc.pdf` right panel)
 
+- **Longer series amplify organiser power, more so under cycles.** Making every match a best-of-3 (n = 8, medium, 200
+  matrices per κ, paired) leaves κ unchanged and makes matches more decisive (mean |P − ½| 0.18 → 0.24). It raises Π by +0.016
+  [0.014, 0.018] at κ = 0 but by +0.117 [0.115, 0.119] at κ = 1 (0.196 → 0.313). At κ = 0.9 the weakest player becomes
+  crownable in 30% of matrices instead of 16%. (`outputs/fig/F6_bo3.pdf`, `outputs/csv/e5_summary.csv`)
+
 **Surprises:**
 1. **P6 (new conjecture): under BT the kingmakeable set is always a top segment {1, …, K} of the strength order.** True in all
    1,200 BT matrices at n = 8. It fails with cycles (top-segment share 0.987 at κ = 0.1, 0.878 at κ = 0.6). See `theory/P6.md`.
@@ -38,7 +43,11 @@
    1–0 players at random, and round 3 forces the two 2–0 players to meet, so the champion's path *is* a random bracket. The 5
    extra matches only sort out the lower places. Confirmed: E4 metrics agree to 3 decimals, and 200k-run Swiss matches exact
    KO-random within 3 s.e. on 40/40 entries.
-4. BT is more riggable than our hypothesis said: K = 1 in only 642/1,200 BT matrices, and one matrix had K = 6 of 8.
+4. **"Reduce luck with best-of-3" backfires under cycles:** it removes the noise that was protecting players from
+   bad matchups, so the bracket (who meets whom) decides more (E5).
+5. **Crowning the very weakest needs heavy cycling even at n = 4:** no non-degenerate example below κ ≈ 0.56 was found
+   (P4 search), consistent with E1.
+6. BT is more riggable than our hypothesis said: K = 1 in only 642/1,200 BT matrices, and one matrix had K = 6 of 8.
    The "small kingmakeable set under BT" claim should be "a top segment, typically 1–3 players".
 
 ## 2. Theory items
@@ -51,8 +60,8 @@
 | P3(i) | **proved, all n** (one line from Chung & Hwang's theorem) | weakest never favourite; more strongly, a player is always beaten in W by a stronger first-round opponent | `theory/P3.md` |
 | P3(ii) | **proved, all n** (known: Adler et al. 2017) | W_i increasing in g_i | `theory/P3.md` |
 | P3(iii) | **proved, all n; tight** (K = 7 found at n = 8) | under BT, K ≤ n − 1 | `theory/P3.md`, `outputs/csv/p3_max_K_bt.csv` |
-| P4 | example re-verified exactly (Fraction): W_B = 293/1000 is the unique max | cycles break P3; lowest-Borda B is crowned by {A,C}\|{B,D} | `theory/P4.md` |
-| P5 | not attempted; E1 data: mean K increases in κ in 59 of 60 adjacent steps (n = 8, 6 cells; the exception is within noise) | E[K] monotone in κ? threshold κ* for the weakest player | — |
+| P4 | **done**: original re-verified exactly; cleaner one-decimal example (weakest D crowned, W_D = 27/100, κ = 0.758) verified exactly; min-κ searches (grid 0.755; continuous ≤ 0.559, non-degenerate) | cycles let the weakest player be crowned | `theory/P4.md`, F1 |
+| P5 | partial, empirical only: mean K increases in κ in 59 of 60 adjacent steps (E1). The weakest player is first crownable at κ ≈ 0.6–0.8 (n = 8, E1); no non-degenerate n = 4 example below κ ≈ 0.56 (P4 search). No proof of monotonicity or of a threshold | E[K] monotone in κ? threshold κ* | E1, `theory/P4.md` |
 | P6 (new) | conjecture: 0 violations in 1,200 (E1) + 230,000 random + 615,000 adversarial tests (n = 4, 8); not proved | under BT the kingmakeable set is a top segment | `theory/P6.md` |
 
 (P1(a) is exercised numerically by `tests/test_bracket.py::test_exhaustive_metrics_deterministic_transitive` for one
@@ -209,6 +218,24 @@ The weakest player was kingmakeable in only 1 of 20 true matrices, in line with 
   0.6415. Ridge: λ = 0.01 → κ = 0.79, test 1.355; λ ≥ 3 → κ = 0, test 0.6416. In-sample cyclicity in a 614-match dataset is
   over-fitting.
 
+### E5 — best-of-3 series (done, optional)
+
+- Command: `python experiments/e5_bo3.py --full`; seed 20261127; git commit 7b4c40d; runtime 2 s. n = 8, medium scale, skew
+  cycles, κ ∈ {0, 0.1, …, 1} × 200 matrices; each matrix analysed as single games and as best-of-3 (p ↦ p²(3 − 2p)); paired.
+- The series map leaves κ essentially unchanged (realised 0.102 for target 0.1, …, 0.799 for 0.8) and raises decisiveness
+  (mean |P − ½| 0.175–0.180 → 0.236–0.246).
+- Π (best-of-3 minus single, 95% CI): +0.016 [0.014, 0.018] at κ = 0, +0.061 at 0.5, +0.097 at 0.8, +0.117 [0.115, 0.119] at 1.
+- K: −0.12 [−0.17, −0.07] at κ = 0 (more decisive ladder ⇒ fewer upsets ⇒ fewer crownable players, as in E1 "decisive"),
+  +0.41 [0.31, 0.52] at κ = 0.7, −0.12 at κ = 1 (near the ceiling of 8). Weakest crownable at κ = 0.9: 0.30 vs 0.16.
+- Interpretation: best-of-3 acts like a decisiveness increase. E1 already showed decisiveness amplifies the effect of
+  cycles, so longer series make the bracket matter more when matchups are cyclic, and barely change things in a ladder.
+- Figure: `outputs/fig/F6_bo3.pdf`.
+
+### Figures F0 and F1 (done)
+- `outputs/fig/F0_setup.pdf`: setup schematic (`experiments/f0_setup.py`).
+- `outputs/fig/F1_p4_example.pdf`: the one-decimal P4 example as a bracket, {A vs C} | {B vs D}, with exact title chances
+  (D = 27/100 favourite; `experiments/f1_example.py` asserts the exact value).
+
 ## 4. Limitations and threats to validity
 
 - Only one real dataset (ATP, 16 players, 614 matches), and it is ~transitive out of sample. With this little data, BC
@@ -222,6 +249,36 @@ The weakest player was kingmakeable in only 1 of 20 true matrices, in line with 
   (medium: mean |P − ½| 0.179 at κ = 0, 0.176 at 0.5, 0.172 at 1; recorded per matrix in `e1_n8_raw.csv`), so the rise
   in Π with κ is not an artefact of matches becoming more decisive.
 
-## 5. Draft of report Section 1
+## 5. Draft of report Section 1 (question, why it matters, approach)
 
-_To be written after E1._
+**Question.** When one player beats another is not a simple matter of who is "better", with rock-paper-scissors
+matchups where A beats B, B beats C and C beats A, how much of *who wins a knockout tournament* is decided by the
+organiser's bracket rather than by the players? And which tournament formats still crown a sensible winner?
+
+**Why it matters.** Brackets are set by people: seeding committees, game publishers, league organisers. If the bracket can
+change the champion, the organiser is a kingmaker. Esports and many strategy games are known to have counter-play
+structure, and ranking systems (Elo, Bradley–Terry) assume it away. If cycles hand power to the organiser, then the
+fairness of a competition depends on a property of the matchups (how cyclic they are) that nobody usually measures.
+
+**Key idea.** Split every matchup table into a "ladder" part and a "cycle" part (the Hodge decomposition on the complete
+graph) and measure the cyclic share κ ∈ [0, 1]. Then dial κ from a pure ladder (Bradley–Terry) to pure rock-paper-scissors
+and measure the organiser's power exactly: over all 315 brackets of 8 players, how many players can be made the favourite
+(K) and how far a player's title chance can be moved (Π).
+
+**What we found.**
+1. *A ladder is already riggable at the top, but it protects the bottom.* Under Bradley–Terry a non-best player can be
+   made favourite (up to n − 1 of them), but the weakest player never can. This follows from Chung & Hwang's (1978)
+   theorem that a stronger player does at least as well in a weaker player's slot. Empirically the crownable players
+   always form a block at the top of the ranking (conjecture P6).
+2. *Cycles hand the organiser more power, gradually.* With 8 players and medium-decisive matches, K rises from about 2 at
+   κ = 0 to 3.5 at κ = 0.6 and about 8 at κ = 1; Π roughly doubles. The bottom player becomes crownable only once cycles
+   dominate (κ ≳ 0.6–0.8). The effect is several times larger when matches are decisive, and best-of-3 series amplify it.
+3. *You only see this power if your model can see cycles, and only if cycles are really there.* On a synthetic strategy
+   game, a Bradley–Terry fit underestimates organiser power about 3×; Blade–Chest recovers it and predicts better. On ATP
+   tennis, held-out data show no usable cycles, and an over-fitted cyclic model would invent them.
+4. *Formats:* round robin's advantage over a 7-match knockout in crowning a "deserving" winner shrinks to zero as κ → 1;
+   an 8-player, 3-round Swiss crowns exactly like a random knockout.
+
+**Approach.** Exact dynamic programming over all brackets (n = 4, 8), local search (n = 16), Monte Carlo for formats,
+numerical counterexample search before any proof, and exact rational arithmetic for every example quoted. Figure F0
+summarises the pipeline.
