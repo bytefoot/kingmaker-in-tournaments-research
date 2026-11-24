@@ -257,7 +257,7 @@ Picture: `outputs/fig/F5_formats_vs_kappa.pdf`.
 **Question for you:** is the Swiss result worth a short paragraph in the report? It's simple to explain and a bit surprising.
 
 💬 **Your thoughts:**
->
+> Can epxlain the swiss result but thats not the main result/outcome from this; should discuss more on in hihgly-transitive (but with little intransvitiy) which method is better which should be used and stuff; and the same case arugment for the case when its highly intrasnitive with very little trsivitity
 
 ---
 
@@ -270,6 +270,10 @@ Picture: `outputs/fig/F5_formats_vs_kappa.pdf`.
   near-certain matches. That fits E1, so the bottom player is protected unless cycles dominate.
 - **F0** (`outputs/fig/F0_setup.pdf`) is the one-picture overview of the whole pipeline the professor asked for.
 
+💬 **Your thoughts:**
+> Okay this is pretty nice F1 image is good; I dont like your overview F)  - i feel it isnt very human appealing while an overview though faithful to the porject must also generaete interest and a better outlook fo things so work on F0
+
+
 ## Step 8: E5, does "best-of-3" make things fairer? (done ✅)
 
 Surprisingly, **no, it makes the organiser more powerful when there are cycles.** Best-of-3 removes luck, so matchups
@@ -277,10 +281,35 @@ decide more. In a pure ladder that barely matters (+1.6 points of swing). In a r
 12 points (20 → 31). Picture: `outputs/fig/F6_bo3.pdf`.
 
 💬 **Your thoughts:**
->
+> I think this is nice research idea; kudos to u; and the plot is pretty good; Like i like this to be a bonus seciton right before or right after the conclusion ro results seciotn just sos th it would be like -  we present our exploration, observation and solidfy the problem throughout the report and this is an honest tried improvement in teh free time kinda thing
 
 ## Step 9: Section 1 draft
 
 A first draft of report Section 1 (question, why it matters, key idea, findings, approach) is at the end of
 `RESULTS.md`. Read it and tell me what doesn't sound like *your* project. That section carries the most marks, so it
 should match how you'd explain the idea.
+
+💬 **Your thoughts:**
+> I've gone through the section 1 but i dont think very well intrducdes the motivation in human student to teach eprot matter; i think i shall give you more context below
+
+> this is the final report for my course Learnign from Human Preferences; Where i was asked to take a paper presetn on it and work one xpriementations and submit a report later on; I had chosen this Blade_Chest Respresentation paper and had presented this; And this is my work to the report; I shall allos now quote the guidelines ive received: "Dear students, I want to clearly articulate the policy for the last 20 marks of this course, namely your project report.
+
+Scope and effort. I expect about 15 hours of work per student. As a rough guide, spend a third of that time thinking and planning, a third doing the work, and a third writing and reflecting. You may go through that cycle a couple of times. Your project should revolve around one key idea. One well-chosen experiment or one carefully investigated theorem can make a great project. Spend a couple of days exploring ideas, then pick one and do it well.
+
+On committing to a plan. Continuing on the above point. Please try to agree on a plan by 10 November if you haven’t already. I am purposely not putting a separate project proposal deadline, as you have endsems/placements coming up. In the first section of the report, explain what question you are exploring, why it is worth asking, and how you approach it. This first section will carry a substantial share of the 20 marks.
+
+What you can do. You can do experimental or theoretical work, and either route can earn full marks. Feel free to go beyond your assigned paper when it helps you answer your question.
+
+    Experiments. You might reproduce one result and then vary a key assumption, test a simpler baseline, or try a different dataset. Explain why you chose the experiment, what happened, and what you learned, even if the result was inconclusive.
+    Theory. You might focus on one theorem and work through the proof step that makes it work. You could trace an idea to earlier papers and explain what the authors had to change, or examine why an assumption matters. For instance, can you construct a small example where the theorem fails when you drop that assumption? A theory project can earn full marks without code.
+    Experiments inspired by theory. If your assigned paper is theoretical, you can still do an empirical project. If the theory explains something observed in practice, you could design a small experiment to see when that explanation holds up. If later work keeps the paper’s main idea but shows that a much simpler method works in practice, you could compare the two and investigate when the simpler method is enough.
+
+Feel free to critique the paper. If you suspect a result is sensitive to a particular choice, or that a method is computationally expensive for what it delivers, investigate that. Show where the issue arises and explain what your evidence tells you.
+
+You’re welcome to use AI creatively, for example to brainstorm experiments, generate synthetic data with specific properties, or help test an algorithm on different kinds of data. Check the outputs yourself and use what helps you answer your central question.
+
+Report format. Use 11-point font. LaTeX is strongly preferred. Treat 15 pages of main text as a rough upper guideline. A shorter report is fine if it gives me enough detail to follow what you did and assess what you learned. For experimental work, include a figure or schematic that explains the setup. Make plots legible at the size they appear in the PDF, with readable labels and legends. Avoid grids of tiny plots and oversized tables. You may include GitHub links in the PDF, but there’s a good chance I won’t open them.
+
+Convince me from the write-up itself that you did something cool."
+
+See what i felt was laking was the transition from the blade cehst apper to this research lacking of human-like (we are 21yr old btech students) motvaiotn - section

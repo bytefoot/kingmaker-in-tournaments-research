@@ -159,7 +159,7 @@ and cycle type with 20 matrices per point.
   average as a corollary, and they show both fail under strong stochastic transitivity alone. We read the original
   (supplied by the humans on 22 Nov). P3 is cited, not claimed.
 
-### E2 — BT vs BC on (synthetic) real-style data (archetype game done; tennis blocked)
+### E2 — BT vs BC on (synthetic) real-style data (archetype game and tennis done)
 
 - Command: `python experiments/e2_real.py --full`; seed 20261124; git commit a5817b9; runtime 41 s.
 - **Archetype game** (`km.data.make_archetype_game`): 3 archetypes in an R→P→S→R counter loop (blade/chest directions 120°
@@ -167,8 +167,7 @@ and cycle type with 20 matrices per point.
   a 400-draw grid, to hit the spec's κ target: mean κ = 0.62 (sd 0.15), mean |P − ½| = 0.21. Grid over σ_g ∈ {0.5, 1, 1.5} ×
   s ∈ {0.6, 0.8, 1, 1.2}. The 20 instances used have true κ = 0.634 ± 0.034.
 - Per instance and N ∈ {10, 50} matches per pair: independent train / validation / test samples from the true P. BT = MLE;
-  BC = d = 2 MLE, 3 random restarts, λ chosen on validation log-loss from {0.01, 0.1, 1, 3, 10, 30, 100} (chosen: mostly 1 at N = 10,
-  3 at N = 50).
+  BC = d = 2 MLE, 3 random restarts, λ chosen on validation log-loss (grid and regulariser below).
 - **Regulariser (main analysis = the paper's).** Chen & Joachims regularise with λΣ‖bᵢ − cᵢ‖². This restrains vector
   *scale* only weakly: as λ goes 0.01 → 1000, fitted blades lengthen (mean norm 2 → 36) with κ unchanged, and the fit
   collapses to BT only near λ = 10⁵. Useful λ values are therefore large. With a first grid capped at 1000, selection
@@ -217,6 +216,76 @@ The weakest player was kingmakeable in only 1 of 20 true matrices, in line with 
   κ = 0.72, train 0.495, test 1.813; λ = 1 → κ = 0.78, test 1.132; λ = 100 → κ = 0.55, test 0.757; λ ≥ 10³ → κ = 0, test
   0.6415. Ridge: λ = 0.01 → κ = 0.79, test 1.355; λ ≥ 3 → κ = 0, test 0.6416. In-sample cyclicity in a 614-match dataset is
   over-fitting.
+
+### E3 — Elo seeding in a cyclic world (done)
+
+- Command: `python experiments/e3_misspec.py --full`; seed 20261125; git commit 4aa72e5; runtime 3.3 s.
+- make_P (n = 8, medium, skew) at κ ∈ {0, 0.3, 0.6} × 200 matrices: BT fit = least squares (exact at κ = 0). Archetype game
+  (20 instances, 50 matches/pair): BT MLE vs BC fit (paper's regulariser, λ = 10³, the value E2 selected most often) from
+  the same data, and also vs the true P.
+- Seeding = rank by the BT fit, standard bracket 1v8, 4v5, 2v7, 3v6 (seeds 1 and 2 in opposite halves). "Predicted" W =
+  DP under the BT fit; "actual" W = DP under the cyclic P. Percentile = share of the 315 brackets giving the player an
+  actual W no larger than the seeded bracket does.
+- Per matrix (mean ± s.e.; `outputs/csv/e3_misspec.csv`):
+
+| world | max \|actual − predicted\| W | top seed's gain | seeded bracket's percentile for top seed |
+|---|---|---|---|
+| κ = 0 (control) | 0.000 | 0.000 | 0.871 ± 0.003 |
+| κ = 0.3 | 0.046 ± 0.001 | −0.009 ± 0.002 | 0.760 ± 0.013 |
+| κ = 0.6 | 0.069 ± 0.002 | −0.017 ± 0.004 | 0.650 ± 0.019 |
+| archetype, BC fit vs BT fit | 0.092 ± 0.010 | +0.025 ± 0.016 | 0.700 ± 0.066 |
+| archetype, true P vs BT fit | 0.097 ± 0.009 | +0.022 ± 0.018 | 0.684 ± 0.070 |
+
+Interpretation: under cycles the seeded bracket's promise ("seed 1 is protected") weakens. In the make_P worlds the top
+seed's actual title chance is lower than predicted, and the seeded bracket becomes a progressively less favourable draw for
+them (87th → 65th percentile of all 315). In the archetype game the top seed's average gain is positive but not significant
+(+0.025 ± 0.016); the individual misses are large and go both ways (archetype BC vs BT, largest: a 3rd seed +0.225, a top
+seed −0.122). Gains and losses follow matchups (whose counter-style sits in their path), not rank. Even at κ = 0 standard
+seeding is not the best bracket for the top seed (87th percentile), consistent with P2.
+
+### E4 — formats (done)
+
+- Command: `python experiments/e4_formats.py --full`; seed 20261126; git commit f46e38b; runtime 97 s. n = 8, medium scale,
+  skew cycles, κ ∈ {0, 0.2, …, 1} × 200 matrices; 10,000 MC runs per (P, format) for Swiss, Groups+KO and RR; exact for KO.
+  Paired differences: `python experiments/e4_paired.py` → `outputs/csv/e4_paired.csv` (2,000 bootstrap resamples).
+- Nash: unique in 1200/1200 matrices; mean support 1 (κ = 0) → 3.1 (0.6) → 7.0 (1). Copeland set size 1 → 1.45 → 2.4.
+- Bug found and fixed during E4: the Nash uniqueness check used a fixed LP slack that made every game look non-unique. It now
+  uses the LP's own value, with a regression test. E0 was re-run afterwards (26/26 pass).
+
+P(winner ∈ Copeland set), mean over 200 matrices (`outputs/csv/e4_summary.csv`; CI half-widths ≈ 0.01–0.03):
+
+| κ | KO-random (7) | KO-elo (7) | Swiss (12) | Groups+KO (15) | Round robin (28) |
+|---|---|---|---|---|---|
+| 0 | 0.383 | 0.431 | 0.383 | 0.409 | 0.449 |
+| 0.4 | 0.376 | 0.408 | 0.376 | 0.401 | 0.435 |
+| 0.6 | 0.340 | 0.367 | 0.340 | 0.361 | 0.396 |
+| 1.0 | 0.313 | 0.308 | 0.313 | 0.315 | 0.316 |
+
+Paired differences vs KO-random (same matrices, 95% bootstrap CI, `e4_paired.csv`):
+
+| metric | format | κ = 0 | κ = 0.6 | κ = 1 |
+|---|---|---|---|---|
+| Copeland | Round robin | +0.067 [0.063, 0.070] | +0.055 [0.052, 0.059] | +0.003 [0.002, 0.005] |
+| Copeland | KO-elo | +0.048 [0.046, 0.050] | +0.027 [0.019, 0.034] | −0.005 [−0.014, 0.004] |
+| Copeland | Groups+KO | +0.026 [0.025, 0.027] | +0.020 [0.019, 0.022] | +0.002 [0.001, 0.003] |
+| Nash mass | Round robin | +0.067 | +0.024 [0.021, 0.028] | −0.000 |
+| Nash mass | KO-elo | +0.048 | +0.010 [0.006, 0.014] | −0.000 |
+| Borda | Round robin | +0.067 | +0.055 | −0.002 [−0.004, −0.001] |
+
+Interpretation:
+- "Round robin's advantage shrinks as κ grows" holds on all three metrics, and the advantage reaches zero at κ = 1. A
+  reversal exists only on Borda at κ = 1 and is about 0.2 points: negligible.
+- **Mostly-ladder worlds (κ ≲ 0.4):** round robin is best (+6–7 points over a random draw), but Elo-seeded knockout gets
+  about 70% of that gain (+4.8 at κ = 0) with 7 matches instead of 28. Groups+KO (15 matches) gains less than KO-elo.
+  Swiss (12 matches) gains nothing over a random knockout (Surprise 3).
+- **Mostly-cyclic worlds (κ ≳ 0.8):** every format converges on the same, nearly uniform winner distribution (entropy 2.7–2.9 bits at κ = 0.8, 2.9–3.0
+  at κ = 1; uniform over 8 = 3 bits), and the advantage of seeding disappears first (KO-elo's Nash-mass gain is +0.005 at κ = 0.8).
+  Extra matches buy almost nothing. What remains is the organiser's power over the bracket (E1), so a transparent random
+  draw is the defensible choice there.
+- Even at κ = 0 the formats differ less than one might expect (RR crowns the top player 45% vs 38% for a random knockout)
+  because medium-scale matches are close; this is all at one scale.
+
+Caveats: medium scale and skew cycles only; Copeland/Borda/Nash are three different "deserving" notions and agree only at κ = 0.
 
 ### E5 — best-of-3 series (done, optional)
 
