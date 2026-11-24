@@ -105,7 +105,16 @@ the search can miss the best bracket.
 - P6 could be a nice clean theorem for the report. Should we prioritise proving it alongside P3?
 
 💬 **Your thoughts:**
+> (Kevin, 23 Nov) Expected *more* decisive matches to mean *less* organiser power ("you can't dethrone someone that
+> good"). Interesting that close matches are what kill rigging: with near coin-flips you can't steer much.
 >
+> (Claude's reply) Both intuitions show up in F2, and which one wins depends on κ (`e1_n8_summary.csv`, skew):
+> - κ = 0 (ladder): your effect is real. Decisive has the *fewest* crownable players (K 1.45 [1.34, 1.57] vs
+>   ≈ 2.0 for close/medium), and Π stops growing (medium 0.092, decisive 0.091). The top player is too good to dethrone.
+> - κ = 1 (cycles): no one is undethronable, since everyone has a counter. Decisiveness then only *amplifies* the
+>   organiser's choice of who meets whom: Π is 0.072 (close), 0.197 (medium), 0.490 (decisive).
+> - Takeaway for the report: rigging needs **both** ingredients. Decisive matches make bracket choices matter, and
+>   cycles mean no single player is safe from them. Close matches kill the first; a ladder kills the second.
 
 ---
 
@@ -121,6 +130,15 @@ the search can miss the best bracket.
      typical player's title chance (fair share with 8 players is 12.5%)."
    - Length: probably a compact version in Section 1 or 2 (one table + 3–4 sentences), maybe the full walk-through as a boxed
      example. Decide when drafting.
+2. **Explain how seeding works before E3 (Kevin, 24 Nov).** One short paragraph: rank players by Elo/BT, then 1v8, 4v5,
+   2v7, 3v6 with #1 and #2 in opposite halves. Say plainly that this ranking *is* a ladder (BT) model, then describe
+   "promised vs actual" and read F4 (diagonal = promise kept, above = luckier).
+3. **Rigging needs two ingredients: decisive matches + cycles (Kevin, 23 Nov).** At κ = 0, more decisive matches *reduce*
+   crownable players (K 1.45 vs ≈ 2.0) since the top player can't be dethroned; at κ = 1 decisiveness amplifies power
+   (Π 0.07 → 0.20 → 0.49). Close matches or a ladder each kill rigging. Good Discussion sentence (F2, `e1_n8_summary.csv`).
+4. **Spell out how a model "estimates the swing" before E2 (Kevin, 24 Nov).** Fit model → fitted P → same DP over all 315
+   brackets → best minus worst per player → average = Π. BT is low because it irons out the cycles ("correct answer for the
+   wrong world"); held-out log-loss tells you which fitted P to believe.
 
 ---
 
@@ -149,7 +167,7 @@ The stronger player then does *better* there than the weaker one did.
 - So the honest BT story is: **the bottom is protected, the top is not.** With cycles, the bottom is no longer protected (P4, E1).
 
 💬 **Your thoughts:**
->
+> Well fair this si rigours test of the inbuilt strucutre in all of these; but the foact the topc is not proetect is of signifcance iguess as that highlihgts our furhter experimentationz
 
 ---
 
@@ -183,7 +201,7 @@ matches far worse than a coin flip. 👉 **Lesson for the report: you have to me
 Four (Djokovic, Federer, Nadal, Murray), a top block exactly as P6 predicts for a ladder world.
 
 💬 **Your thoughts:**
->
+> this nice analysis i suppose; and for the tennis we can alwasy argue that - its the top tournament so we have technically preselected people; also that sstyle kinda averages out in sports due to rules and regulations the the specific sports or smthg like this
 
 ---
 
@@ -200,7 +218,19 @@ than promised. Their seeded bracket goes from a good draw for them (87th percent
 Picture: `outputs/fig/F4_elo_pred_vs_actual.pdf` (dots above the diagonal = luckier than predicted).
 
 💬 **Your thoughts:**
+> (Kevin, 24 Nov) The seeding explanation was needed: what Elo seeding *is* (1v8, top two in opposite halves) and that
+> the ranking behind it is a BT ladder. Without that, E3 doesn't make sense. Explain it that way in the report.
 >
+> Key points to keep (from the chat walk-through):
+> - The question is about an **honest** organiser, not a rigging one: seed by ranking, then see how wrong the ranking's
+>   promises are when the world has cycles.
+> - "Promised" = title chances computed with the ladder (BT) model; "actual" = the same bracket under the true cyclic P.
+>   κ = 0 is the control (they match to 1e-17).
+> - Why the top seed loses protection: seeding hands #1 the *overall* weakest opponents, but "weakest overall" is not
+>   "easy for me". #8 may be exactly #1's counter-style.
+> - Gains and losses follow **styles, not rank**: a one-number ranking can't see who counters whom.
+> - Message: even with no rigging intent, ladder seeding in a cyclic world hands out hidden advantages. Measuring κ
+>   first tells the organiser whether to trust the seeding (feeds Discussion, "should organisers measure κ?").
 
 ---
 
