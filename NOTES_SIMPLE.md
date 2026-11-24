@@ -313,3 +313,29 @@ Report format. Use 11-point font. LaTeX is strongly preferred. Treat 15 pages of
 Convince me from the write-up itself that you did something cool."
 
 See what i felt was laking was the transition from the blade cehst apper to this research lacking of human-like (we are 21yr old btech students) motvaiotn - section
+
+## Step 10: the report (draft v1, 24 Nov)
+
+- `report/main.tex` (+ `refs.bib`, `figures/`), compiled to `report/main.pdf`: 16 pages, of which 13 are main text,
+  then references and a 2-page appendix.
+- **Overleaf:** upload `report/report_overleaf.zip` (Overleaf → New Project → Upload Project). It compiles on its own.
+  If figures change, run `report/make_overleaf_zip.sh` to refresh them and rebuild the zip.
+- What your 💬 notes changed:
+  - Section 1 now starts from *presenting the BC paper* and asks "so what?": pairwise models are used to make decisions
+    (brackets, Chatbot Arena, RLHF reward models), and the paper's own StarCraft data come from knockout events.
+  - E4 now gives format advice by regime: mostly-ladder (seeded KO gets ~70% of round robin's gain with 7 matches
+    instead of 28) vs mostly-cycle (extra matches buy nothing; use a random draw). Swiss is a short side note.
+  - Best-of-3 is a "Bonus" section just before the Conclusion.
+  - F0 has been redrawn as a 4-step story with real mini-graphics.
+  - Tennis: your "pre-selected elite players / rules average styles out" points are included, labelled as untested
+    explanations.
+  - Seeding is explained before E3; "rigging needs two ingredients" is in E1.
+- **Please check or personalise:**
+  - (a) Section 1.1 wording. It's written as "we presented the paper, then asked so what?"; add your own detail if
+    you like.
+  - (b) The red `[GitHub link to be added]` placeholder (`\repourl` at the top of main.tex).
+  - (c) The "Use of AI tools" paragraph before the references. Edit it to say what you're comfortable with.
+  - (d) The date on the title page (27 Nov).
+
+💬 **Your thoughts:**
+>

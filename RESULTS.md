@@ -278,7 +278,7 @@ Interpretation:
 - **Mostly-ladder worlds (κ ≲ 0.4):** round robin is best (+6–7 points over a random draw), but Elo-seeded knockout gets
   about 70% of that gain (+4.8 at κ = 0) with 7 matches instead of 28. Groups+KO (15 matches) gains less than KO-elo.
   Swiss (12 matches) gains nothing over a random knockout (Surprise 3).
-- **Mostly-cyclic worlds (κ ≳ 0.8):** every format converges on the same, nearly uniform winner distribution (entropy 2.7–2.9 bits at κ = 0.8, 2.9–3.0
+- **Mostly-cyclic worlds (κ ≳ 0.8):** the formats move together and by κ = 1 coincide on a nearly uniform winner distribution (entropy 2.7–2.9 bits at κ = 0.8, 2.9–3.0
   at κ = 1; uniform over 8 = 3 bits), and the advantage of seeding disappears first (KO-elo's Nash-mass gain is +0.005 at κ = 0.8).
   Extra matches buy almost nothing. What remains is the organiser's power over the bracket (E1), so a transparent random
   draw is the defensible choice there.
@@ -301,7 +301,8 @@ Caveats: medium scale and skew cycles only; Copeland/Borda/Nash are three differ
 - Figure: `outputs/fig/F6_bo3.pdf`.
 
 ### Figures F0 and F1 (done)
-- `outputs/fig/F0_setup.pdf`: setup schematic (`experiments/f0_setup.py`).
+- `outputs/fig/F0_setup.pdf`: setup schematic (`experiments/f0_setup.py`), redrawn 24 Nov as a four-step story with real
+  mini-graphics (ladder/cycle, the F1 matrix split into ladder + cycle, the F1 bracket, the E1 medium K curve).
 - `outputs/fig/F1_p4_example.pdf`: the one-decimal P4 example as a bracket, {A vs C} | {B vs D}, with exact title chances
   (D = 27/100 favourite; `experiments/f1_example.py` asserts the exact value).
 

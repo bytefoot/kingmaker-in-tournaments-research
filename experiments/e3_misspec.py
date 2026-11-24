@@ -50,8 +50,9 @@ def plot(examples: dict) -> None:
         ax.scatter(df.W_pred, df.W_actual, color=COLORS["BC"], s=28, edgecolors="white", linewidths=0.6, zorder=3)
         show = set(df.gain.abs().nlargest(3).index) | set(df.index[df.seed == 1])  # label seed 1 + 3 biggest misses
         for k, r in df.loc[sorted(show)].iterrows():
+            right = r.W_pred > 0.6 * hi  # labels near the right edge go to the left of the point
             ax.annotate(f"seed {int(r.seed)} ({r.gain:+.2f})", (r.W_pred, r.W_actual), textcoords="offset points",
-                        xytext=(5, -9) if r.gain < 0 else (5, 3), ha="left", fontsize=7)
+                        xytext=(-5 if right else 5, -9 if r.gain < 0 else 3), ha="right" if right else "left", fontsize=7)
         ax.set_xlim(0, hi), ax.set_ylim(0, hi)
         ax.set_xlabel("predicted title chance (BT fit)")
         ax.set_ylabel("actual title chance")

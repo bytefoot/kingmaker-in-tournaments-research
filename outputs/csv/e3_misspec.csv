@@ -1,9 +1,9 @@
 # experiment: e3_misspec
-# date_utc: 2026-11-22T16:47:48+00:00
-# git_commit: 4aa72e5
+# date_utc: 2026-11-24T12:10:28+00:00
+# git_commit: b803eb1+dirty
 # seed: 20261125
 # params: {"N_per_pair": 50, "bc_lambda": 1000.0, "bc_regulariser": "paper", "game": {"s": 0.8, "sigma_g": 0.5, "sigma_v": 0.3}, "game_instances": 20, "kappas": [0.0, 0.3, 0.6], "mode": "full", "reps": 200, "scale": 7.334}
-# runtime_s: 3.28
+# runtime_s: 3.19
 player,seed,W_pred,W_actual,gain,percentile,W_best,W_worst,world,rep
 0,8,0.0047407297684609875,0.004740729768460982,-5.204170427930421e-18,0.10793650793650794,0.015054198941402837,0.004481930806546749,make_P kappa=0.0,0
 1,6,0.050571744422760134,0.050571744422760134,0.0,0.2222222222222222,0.12334343007745813,0.04186626736066609,make_P kappa=0.0,0
